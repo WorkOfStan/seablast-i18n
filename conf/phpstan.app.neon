@@ -1,0 +1,7 @@
+parameters:
+    level: max
+    excludePaths:
+        analyse:
+          - ../vendor
+    scanDirectories:
+      - ../src
