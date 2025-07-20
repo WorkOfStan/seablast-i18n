@@ -4,5 +4,6 @@ Seablast-i18n is a lightweight internationalization (i18n) module designed for a
 
 ## TODO
 
-- ULS
-- migrations
+- 250720, ULS
+- 250720, migrations
+- 250720, SB:LANGUAGE .. zatím je jen v pt a vlastně indikuje místa k přenesení sem
