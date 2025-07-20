@@ -11,8 +11,6 @@
     "webmozart/assert": "^1.10.0"
   },
   "require-dev": {
-    "phpstan/phpstan-phpunit": "^2.0",
-    "phpstan/phpstan-webmozart-assert": "^2.0",
     "phpunit/phpunit": "^8.4 || ^9 || ^10 || ^11 || ^12",
     "seablast/seablast": "^0.2.5"
   },
