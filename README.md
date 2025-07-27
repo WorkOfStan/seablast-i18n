@@ -21,3 +21,4 @@ A lightweight internationalization (i18n) module designed for apps using the [Se
 - 250720, cookies nechť jsou ve správném adresáři
 - zmínit filter Latte --- to je asi už v conf, že?
 - '%%PHINX_CONFIG_DIR%%/../vendor/seablast/i18n/conf/db/migrations', ... expected --- just like in Auth
+- 250727 desc FetchLocalisedItemsModel usage (incl. yield)
