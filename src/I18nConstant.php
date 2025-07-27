@@ -11,7 +11,11 @@ namespace Seablast\I18n;
 class I18nConstant
 {
     /**
+     * @var string string selected language `SB:LANGUAGE` reserved in Seablast\Seablast
+     */
+    public const LANGUAGE = 'SB:LANGUAGE';
+    /**
      * @var string string[] supported languages
      */
-    public const LANGUAGE_LIST = 'I18nApp:LANGUAGE_LIST';
+    public const LANGUAGE_LIST = 'I18nSB:LANGUAGE_LIST';
 }

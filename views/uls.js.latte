@@ -1,0 +1,27 @@
+    <script src="{$configuration->getString('SB_APP_ROOT_ABSOLUTE_URL')}/vendor/seablast/seablast/assets/uls/src/jquery.uls.data.js?v={$configuration->getInt('SB_WEB_FORCE_ASSET_VERSION')}"></script>
+    <script src="{$configuration->getString('SB_APP_ROOT_ABSOLUTE_URL')}/vendor/seablast/seablast/assets/uls/src/jquery.uls.data.utils.js?v={$configuration->getInt('SB_WEB_FORCE_ASSET_VERSION')}"></script>
+    <script src="{$configuration->getString('SB_APP_ROOT_ABSOLUTE_URL')}/vendor/seablast/seablast/assets/uls/src/jquery.uls.lcd.js?v={$configuration->getInt('SB_WEB_FORCE_ASSET_VERSION')}"></script>
+    <script src="{$configuration->getString('SB_APP_ROOT_ABSOLUTE_URL')}/vendor/seablast/seablast/assets/uls/src/jquery.uls.languagefilter.js?v={$configuration->getInt('SB_WEB_FORCE_ASSET_VERSION')}"></script>
+    <script src="{$configuration->getString('SB_APP_ROOT_ABSOLUTE_URL')}/vendor/seablast/seablast/assets/uls/src/jquery.uls.core.js?v={$configuration->getInt('SB_WEB_FORCE_ASSET_VERSION')}"></script>
+    <script>
+        $(document).on('mitLanguageSelectorReady', function() {
+            console.log('>>> mitLanguageSelectorReady: Now we can initialize ULS and call languageSelector without any worries.');
+            $( function () {
+                $( '.uls-trigger' ).uls({
+                    onSelect: function ( language ) {
+                        $.when(window.languageSelector(language))
+                         .done(function(){
+                            location.reload();
+                         })
+                         .fail(function(){
+                            console.error('languageSelector failed for', language);
+                         });
+                    },
+                    quickList: [ 'cs' , 'en' ],
+                    languages: { 'cs': 'čeština', 'en': 'English' }
+                    //quickList: [ 'en', 'hi', 'he', 'ml', 'ta', 'fr' ]
+                });
+            });
+        });
+    </script>
+
