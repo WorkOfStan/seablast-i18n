@@ -1,10 +1,11 @@
-# seablast-i18n
+# `Seablast\I18n`
 
-Seablast-i18n is a lightweight internationalization (i18n) module designed for apps using the Seablast for PHP framework. Installable via Composer, it integrates seamlessly and activates only when needed, allowing you to effortlessly provide multilingual support and manage user language preferences.
+A lightweight internationalization (i18n) module designed for apps using the [Seablast for PHP](https://github.com/WorkOfStan/seablast) framework. Installable via Composer, it integrates seamlessly and activates only when needed, allowing you to effortlessly provide multilingual support and manage user language preferences.
 
 ## Integration
 
-- Seablast/Seablast::v0.2.11 contains `APP_DIR . '/vendor/seablast/i18n/conf/app.conf.php', // Seablast/i18n extension configuration`
+- Seablast/Seablast::v0.2.11 contains `APP_DIR . '/vendor/seablast/i18n/conf/app.conf.php', // Seablast/i18n extension configuration` so use at least this Seablast version.
+- `"seablast/seablast": "^0.2.7"` is in the `require-dev` section of `composer.json` because the app that uses Seablast\I18n may use whatever dev version of Seablast.
 
 ### Language selector
 

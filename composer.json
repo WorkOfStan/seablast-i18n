@@ -6,9 +6,11 @@
     "php": "^7.2 || ^8.0",
     "nette/utils": "^3.2.10 || ^4.0.5",
     "robmorgan/phinx": "^0.12.13 || ^0.13.4 || ^0.14.0 || ^0.15.5 || ^0.16.5",
-    "seablast/seablast": "^0.2.7",
     "tracy/tracy": "^2.9.8 || ^2.10.9",
     "webmozart/assert": "^1.10.0"
+  },
+  "require-dev": {
+    "seablast/seablast": "^0.2.7"
   },
   "license": "MIT",
   "authors": [
