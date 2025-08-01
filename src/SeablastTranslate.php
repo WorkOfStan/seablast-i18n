@@ -10,7 +10,6 @@ use Seablast\Seablast\SeablastConfiguration;
 use Tracy\Debugger;
 use Webmozart\Assert\Assert;
 
-// todo move to sb/i18n
 class SeablastTranslate
 {
     use \Nette\SmartObject;
@@ -53,6 +52,9 @@ class SeablastTranslate
         return $this->configuration->getString('SB:LANGUAGE');
     }
 
+    /**
+     * Populates $this->translations dictionary.
+     */
     private function retrieveTranslations(): void
     {
         //Debugger::barDump('retrieveTranslations called');
