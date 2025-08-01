@@ -12,6 +12,7 @@ class I18nConstant
 {
     /**
      * @var string string selected language `SB:LANGUAGE` reserved in Seablast\Seablast
+     * latte uses 'SB:LANGUAGE' directly, so it's ok to use it directly also in the PHP code
      */
     public const LANGUAGE = 'SB:LANGUAGE';
     /**

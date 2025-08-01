@@ -78,7 +78,7 @@ class FetchLocalisedItemsModel implements SeablastModelInterface
         return (object) [
             'title' => "{$this->titlePrefix}{$this->titleSuffix}",
             'itemId' => $this->itemId,
-            'posts' => $itemsGen,
+            'items' => $itemsGen,
         ];
     }
 

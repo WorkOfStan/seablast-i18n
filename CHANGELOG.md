@@ -19,7 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### `Security` in case of vulnerabilities
 
-## [0.1] - 2025-07-27
+## [0.1] - 2025-08-02
 
 feat: library to handle language switching and localisation of selected strings
 
@@ -28,6 +28,7 @@ feat: library to handle language switching and localisation of selected strings
 - `/api/language` accesses `\Seablast\I18n\Models\ApiLanguageModel`
 - ULS langugage selector
 - localised items migration
+- package limited to the tested PHP versions, i.e. "php": ">=7.2 <8.5"
 
 [Unreleased]: https://github.com/WorkOfStan/seablast-i18n/compare/v0.1...HEAD
 [0.1]: https://github.com/WorkOfStan/seablast-i18n/releases/tag/v0.1

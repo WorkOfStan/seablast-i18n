@@ -90,8 +90,7 @@ class ApiLanguageModel extends GenericRestApiJsonModel
             !empty($_COOKIE['sbLanguage']) && is_string($_COOKIE['sbLanguage']) //
             && in_array($_COOKIE['sbLanguage'], $this->configuration->getArrayString(I18nConstant::LANGUAGE_LIST))
         ) {
-            // todo SeablastConstant
-            $this->configuration->setString('SB:LANGUAGE', (string) $_COOKIE['sbLanguage']);
+            $this->configuration->setString(I18nConstant::LANGUAGE, (string) $_COOKIE['sbLanguage']);
             return (string) $_COOKIE['sbLanguage'];
         }
 
@@ -101,8 +100,7 @@ class ApiLanguageModel extends GenericRestApiJsonModel
         if ($result === false) {
             throw new \Exception('LANGUAGE_LIST is empty');
         }
-        // todo SeablastConstant::Language (or SeablastI18nConstant::Language ??)
-        $this->configuration->setString('SB:LANGUAGE', $result);
+        $this->configuration->setString(I18nConstant::LANGUAGE, $result);
         return $result;
     }
 
