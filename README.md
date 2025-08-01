@@ -4,7 +4,6 @@ A lightweight internationalization (i18n) module designed for apps using the [Se
 
 ## Usage
 
-
 ### UI
 
 Latte filter `translate` is setup in Seablast::SeablastView::renderLatte()
@@ -19,7 +18,7 @@ const back = {="Zpět"|translate};
 const lang = {$configuration->getString('SB:LANGUAGE')};
 ```
 
-To display the language selector, include the three uls.*.latte files as follows:
+To display the language selector, include the three `uls.*.latte` files as follows:
 
 ```latte
 <!DOCTYPE html>
