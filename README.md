@@ -52,6 +52,8 @@ window.languageSelector(string language); // language is a IETF language tag in 
 
 ... the function returns jQuery.Promise and in the fulfillment value, there's JSON, e.g. `{message: 'en'}`.
 
+Note: only languages from the configuration (e.g. `->setArrayString(I18nConstant::LANGUAGE_LIST, ['en', 'cs'])`) are supported. The first one is the default one.
+
 ### Database structure
 
 To create the expected database table structure (for dictionary and localised items), just add the seablast/i18n migration path to your phinx.php configuration, e.g.
