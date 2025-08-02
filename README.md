@@ -66,7 +66,7 @@ To create the expected database table structure (for dictionary and localised it
 ### Language API
 
 - API `'/api/language'` using `'model' => '\Seablast\I18n\Models\ApiLanguageModel'` returns the selected language
-or it receives language to be set in the cookie 'sbLanguage'.
+  or it receives language to be set in the cookie 'sbLanguage'.
 
 ### Language selector
 
