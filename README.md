@@ -121,6 +121,7 @@ class BlogModel extends FetchLocalisedItemsModel
 
 This MODEL yields items one by one from the database in a lazy, memory efficient, way.
 The VIEW can display it as follows (including editability by admins):
+TODO without edit here. With edit in sb/dist.
 
 ```latte
 {layout 'BlueprintWeb.latte'}
