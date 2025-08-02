@@ -13,16 +13,11 @@ use stdClass;
 use Tracy\Debugger;
 
 /**
- * API receives language to be set in a cookie
+ * API returns the selected langauges or it receives language to be set in the cookie 'sbLanguage'.
  */
 class ApiLanguageModel extends GenericRestApiJsonModel
 {
     use \Nette\SmartObject;
-
-    /** @var string Cookie domain. */
-    private $cookieDomain;
-    /** @var string Path for cookies. */
-    private $cookiePath;
 
     /**
      * @param SeablastConfiguration $configuration
@@ -77,8 +72,6 @@ class ApiLanguageModel extends GenericRestApiJsonModel
             return self::response(400, 'Language not supported.');
         }
 
-        $this->cookiePath = '/'; // todo limit - jako sb/auth:IM
-        $this->cookieDomain = ''; // todo extract jako sb/auth:IM
         return $this->setLanguageCookie() //
             ? self::response(200, 'Language set.') : self::response(500, 'Language failed');
     }
@@ -104,19 +97,22 @@ class ApiLanguageModel extends GenericRestApiJsonModel
         return $result;
     }
 
+    /**
+     * Sets the sbLanguage long-term cookie.
+     *
+     * @return bool
+     */
     private function setLanguageCookie(): bool
     {
         if (isset($this->data->language) && is_string($this->data->language)) {
-            // TODO perhaps use the same method for setcookie 'sbRememberMe' in Sb/Auth::IM to use the same params
-            // TODO check whether the default limitations of path and time fits
             return setcookie(
                 'sbLanguage',
-                $this->data->language /*,
+                $this->data->language,
                 time() + 30 * 24 * 60 * 60, // expire time: days * hours * minutes * seconds
-                $this->cookiePath,
-                $this->cookieDomain,
+                $this->configuration->getString(SeablastConstant::SB_SESSION_SET_COOKIE_PARAMS_PATH),
+                '', // default cookie host
                 true,
-                true */
+                true
             );
         }
         return false;

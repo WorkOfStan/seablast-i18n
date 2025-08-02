@@ -63,12 +63,18 @@ To create the expected database table structure (for dictionary and localised it
 - Seablast/Seablast::v0.2.11 contains `APP_DIR . '/vendor/seablast/i18n/conf/app.conf.php', // Seablast/i18n extension configuration` so use at least this Seablast version.
 - `"seablast/seablast": "^0.2.7"` is in the `require-dev` section of `composer.json` because the app that uses Seablast\I18n may use whatever dev version of Seablast.
 
+### Language API
+
+ * API returns the selected langauges or it receives language to be set in the cookie 'sbLanguage'.
+ */
+class ApiLanguageModel
+
 ### Language selector
 
 - Because typically `.htaccess` uses `RedirectMatch 404 vendor\/(?!seablast\/)` to make vendor folder off limits for web access except the seablast library, the jquery.uls is in [Seablast for PHP](https://github.com/WorkOfStan/seablast) since v0.2.11 and not in this module.
 - However, it's useful to know that to make the SVG icon in `.uls-trigger` adopt the `font-color` of the surrounding element, the following style was added into `uls/images/language.svg`: `fill="currentColor"`. Also `uls/css/jquery.uls.css` was changed (changed: `.uls-trigger`, added: `.uls-trigger icon` and `.uls-trigger .icon svg`).
 - Language is lazy inititated in SeablastView `$translator = new $translatorClass($this->model->getConfiguration());` which instantiates SeablastTranslate from which `$lang = new ApiLanguageModel($this->configuration, new \Seablast\Seablast\Superglobals());` is called. There `$this->configuration->setString('SB:LANGUAGE', $result);` is set.
-- `'/api/language'` using `'model' => '\WorkOfStan\Protokronika\Models\ApiLanguageModel'` is also called from mit.js::window.languageSelector. First without parameter to get the language info (is it necessary, when in SB:LANGUAGE ? Maybe lazy. TODO investigate.) Then when uls.onSelect with parameter.
+- `'/api/language'` using `'model' => '\Seablast\I18n\Models\ApiLanguageModel'` is also called from mit.js::window.languageSelector. First without parameter to get the language info (is it necessary, when in SB:LANGUAGE ? Maybe lazy. TODO investigate.) Then when uls.onSelect with parameter.
 
 ### Localised data access
 
@@ -121,7 +127,7 @@ class BlogModel extends FetchLocalisedItemsModel
 
 This MODEL yields items one by one from the database in a lazy, memory efficient, way.
 The VIEW can display it as follows (including editability by admins):
-TODO without edit here. With edit in sb/dist.
+(Todo without edit here. With edit in sb/dist.)
 
 ```latte
 {layout 'BlueprintWeb.latte'}
@@ -160,7 +166,3 @@ TODO without edit here. With edit in sb/dist.
 {/foreach}
 {/block}
 ```
-
-## TODO
-
-- 250720, fix cookies that they are limited to the app folder - do it in ApiLanguageModel just like in sb/auth:IM
