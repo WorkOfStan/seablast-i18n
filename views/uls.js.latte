@@ -80,8 +80,8 @@ $(document).on('sbI18nLanguageSelectorReady', function () {
                   console.error('languageSelector failed for', language);
                 });
       },
-      quickList: {$configuration->getArrayString('I18nSB:LANGUAGE_LIST')}, //['cs', 'en'], {* todo languages according to the LANGUAGE_LIST *}
-      languages: {'cs': 'čeština', 'en': 'English', 'xy': 'Klingon'} {* todo remove xy Klingon *}
+      quickList: {$configuration->getArrayString('I18nSB:LANGUAGE_LIST')},
+      languages: {'cs': 'čeština', 'en': 'English'} {* Note: only the languages in quickList will be displayed *}
       //quickList: [ 'en', 'hi', 'he', 'ml', 'ta', 'fr' ]
     });
   });

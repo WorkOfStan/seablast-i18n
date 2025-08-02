@@ -25,12 +25,17 @@ class SeablastTranslate
     public function __construct(SeablastConfiguration $configuration)
     {
         $this->configuration = $configuration; //for getString(SB:LANGUAGE) and database
-        // @phpstan-ignore staticMethod.alreadyNarrowedType
-        Assert::eq(
-            I18nConstant::LANGUAGE,
-            'SB:LANGUAGE',
-            'Latte uses `SB:LANGUAGE` directly, so it MUST be equal to I18nConstant::LANGUAGE string in configuration'
-        );
+        // @phpstan-ignore notIdentical.alwaysFalse
+        if (I18nConstant::LANGUAGE !== 'SB:LANGUAGE') {
+            Debugger::barDump(
+                'Latte uses `SB:LANGUAGE` directly, so it MUST be equal to I18nConstant::LANGUAGE in configuration',
+                'SB:LANGUAGE ERROR'
+            );
+            Debugger::log(
+                'Latte uses `SB:LANGUAGE` directly, so it MUST be equal to I18nConstant::LANGUAGE in configuration',
+                \Tracy\ILogger::ERROR
+            );
+        }
     }
 
     /**
