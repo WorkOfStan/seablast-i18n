@@ -26,7 +26,7 @@ class SeablastTranslate
     {
         $this->configuration = $configuration; //for getString(SB:LANGUAGE) and database
         Assert::eq(
-            $this->configuration->getString(I18nConstant::LANGUAGE),
+            I18nConstant::LANGUAGE,
             'SB:LANGUAGE',
             'Latte uses `SB:LANGUAGE` directly, so it MUST be equal to I18nConstant::LANGUAGE string in configuration'
         );

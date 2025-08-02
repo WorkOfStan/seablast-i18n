@@ -3,25 +3,87 @@
     <script src="{$configuration->getString('SB_APP_ROOT_ABSOLUTE_URL')}/vendor/seablast/seablast/assets/uls/src/jquery.uls.lcd.js?v={$configuration->getInt('SB_WEB_FORCE_ASSET_VERSION')}"></script>
     <script src="{$configuration->getString('SB_APP_ROOT_ABSOLUTE_URL')}/vendor/seablast/seablast/assets/uls/src/jquery.uls.languagefilter.js?v={$configuration->getInt('SB_WEB_FORCE_ASSET_VERSION')}"></script>
     <script src="{$configuration->getString('SB_APP_ROOT_ABSOLUTE_URL')}/vendor/seablast/seablast/assets/uls/src/jquery.uls.core.js?v={$configuration->getInt('SB_WEB_FORCE_ASSET_VERSION')}"></script>
-    <script>
-        $(document).on('mitLanguageSelectorReady', function() {
-            console.log('>>> mitLanguageSelectorReady: Now we can initialize ULS and call languageSelector without any worries.');
-            $( function () {
-                $( '.uls-trigger' ).uls({
-                    onSelect: function ( language ) {
-                        $.when(window.languageSelector(language))
-                         .done(function(){
-                            location.reload();
-                         })
-                         .fail(function(){
-                            console.error('languageSelector failed for', language);
-                         });
-                    },
-                    quickList: [ 'cs' , 'en' ],
-                    languages: { 'cs': 'čeština', 'en': 'English' }
-                    //quickList: [ 'en', 'hi', 'he', 'ml', 'ta', 'fr' ]
-                });
-            });
-        });
-    </script>
+    <script n:syntax=off type="module">
+(async () => {
+  const {ErrorLogger} = await import(`${API_BASE}/vendor/seablast/seablast/assets/scripts/seablast.js`);
 
+  $(() => {
+    /** @type import('./vendor/seablast/seablast/assets/scripts/Environment.js').Environment */
+    const env = {
+      API_BASE,
+      API_BASE_DIR: `${API_BASE}/api/`,
+      flags,
+      csrfToken,
+    };
+
+    const errorLogger = new ErrorLogger(env.csrfToken, env.API_BASE);
+
+    /**
+     * Selects a new UI language.
+     * Returns a jQuery Promise that resolves when the selection is fully applied.
+     *
+     * @param {string} language — language code, e.g. 'en', 'cs'
+     * @returns {jQuery.Promise}
+     */
+    window.languageSelector = function (language) {
+      console.log("languageSelector", language);
+      var dfd = $.Deferred();
+
+      // if not flag ui_language, reject
+      if (env.flags.indexOf("I18n:SHOW_LANGUAGE_SELECTOR") === -1) {
+        return dfd.reject(new Error("UI language flag not enabled")).promise();
+      }
+
+      const url = `${env.API_BASE_DIR}language`;
+      const ajaxOptions =
+              language === undefined
+              ? {url, dataType: "json"} // original behavior - GET
+      : {
+        url,
+        method: "POST",
+        contentType: "application/json",
+        data: JSON.stringify({
+          language,
+          csrfToken: env.csrfToken,
+        }),
+      };
+
+      $.ajax(ajaxOptions)
+              .done((res) => {
+                console.log("LANG REQUESTED", res);
+                dfd.resolve(res);
+              })
+              .fail((xhr, status, err) => {
+                console.error("Language error", status, err);
+                errorLogger.log("/api/language error", "error");
+                dfd.reject(err);
+              });
+      return dfd.promise();
+    };
+    // dispatch the event after window.languageSelector ready
+    document.dispatchEvent(new CustomEvent("sbI18nLanguageSelectorReady"));
+    //window.languageSelector(); // experimental
+  });
+})();
+    </script>
+    <script>
+$(document).on('sbI18nLanguageSelectorReady', function () {
+  console.log('>>> sbI18nLanguageSelectorReady: Now we can initialize ULS and call languageSelector without any worries.');
+  $(function () {
+    $('.uls-trigger').uls({
+      onSelect: function (language) {
+        $.when(window.languageSelector(language))
+                .done(function () {
+                  location.reload();
+                })
+                .fail(function () {
+                  console.error('languageSelector failed for', language);
+                });
+      },
+      quickList: {$configuration->getArrayString('I18nSB:LANGUAGE_LIST')}, //['cs', 'en'], {* todo languages according to the LANGUAGE_LIST *}
+      languages: {'cs': 'čeština', 'en': 'English', 'xy': 'Klingon'} {* todo remove xy Klingon *}
+      //quickList: [ 'en', 'hi', 'he', 'ml', 'ta', 'fr' ]
+    });
+  });
+});
+    </script>
