@@ -8,6 +8,7 @@ use Seablast\I18n\Models\ApiLanguageModel;
 use Seablast\Seablast\Exceptions\DbmsException;
 use Seablast\Seablast\SeablastConfiguration;
 use Tracy\Debugger;
+use Tracy\ILogger;
 use Webmozart\Assert\Assert;
 
 class SeablastTranslate
@@ -33,7 +34,7 @@ class SeablastTranslate
             );
             Debugger::log(
                 'Latte uses `SB:LANGUAGE` directly, so it MUST be equal to I18nConstant::LANGUAGE in configuration',
-                \Tracy\ILogger::ERROR
+                ILogger::ERROR
             );
         }
     }

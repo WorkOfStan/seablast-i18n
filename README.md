@@ -44,6 +44,14 @@ To display the language selector, include the three `uls.*.latte` files as follo
 </html>
 ```
 
+Instead of language selector, you can switch the language programatically by calling
+
+```javascript
+window.languageSelector(string language); // language is a IETF language tag in lowercase, for example: en, fi, ku-latn
+```
+
+... the function returns jQuery.Promise and in the fulfillment value, there's JSON, e.g. `{message: 'en'}`.
+
 ### Database structure
 
 To create the expected database table structure (for dictionary and localised items), just add the seablast/i18n migration path to your phinx.php configuration, e.g.
@@ -65,8 +73,7 @@ To create the expected database table structure (for dictionary and localised it
 
 ### Language API
 
-- API `'/api/language'` using `'model' => '\Seablast\I18n\Models\ApiLanguageModel'` returns the selected language
-  or it receives language to be set in the cookie 'sbLanguage'.
+- API `'/api/language'` using `'model' => '\Seablast\I18n\Models\ApiLanguageModel'` returns the selected language or it receives language to be set in the cookie 'sbLanguage'.
 
 ### Language selector
 
