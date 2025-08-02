@@ -13,7 +13,7 @@ use stdClass;
 use Tracy\Debugger;
 
 /**
- * API returns the selected langauges or it receives language to be set in the cookie 'sbLanguage'.
+ * API returns the selected language or it receives language to be set in the cookie 'sbLanguage'.
  */
 class ApiLanguageModel extends GenericRestApiJsonModel
 {

@@ -7,12 +7,10 @@ namespace Seablast\I18n\Models;
 use Seablast\I18n\SeablastTranslate;
 use Seablast\Seablast\Exceptions\DbmsException;
 use Seablast\Seablast\SeablastConfiguration;
-use Seablast\Seablast\SeablastConstant;
 use Seablast\Seablast\SeablastModelInterface;
 use Seablast\Seablast\Superglobals;
 use stdClass;
 use Tracy\Debugger;
-use Webmozart\Assert\Assert;
 
 /**
  * Retrieve items from database
