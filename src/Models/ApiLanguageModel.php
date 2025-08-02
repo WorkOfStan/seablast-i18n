@@ -108,14 +108,15 @@ class ApiLanguageModel extends GenericRestApiJsonModel
     {
         if (isset($this->data->language) && is_string($this->data->language)) {
             // TODO perhaps use the same method for setcookie 'sbRememberMe' in Sb/Auth::IM to use the same params
+            // TODO check whether the default limitations of path and time fits
             return setcookie(
                 'sbLanguage',
-                $this->data->language,
+                $this->data->language /*,
                 time() + 30 * 24 * 60 * 60, // expire time: days * hours * minutes * seconds
                 $this->cookiePath,
                 $this->cookieDomain,
                 true,
-                true
+                true */
             );
         }
         return false;
