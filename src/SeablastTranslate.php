@@ -25,6 +25,7 @@ class SeablastTranslate
     public function __construct(SeablastConfiguration $configuration)
     {
         $this->configuration = $configuration; //for getString(SB:LANGUAGE) and database
+        // @phpstan-ignore staticMethod.alreadyNarrowedType
         Assert::eq(
             I18nConstant::LANGUAGE,
             'SB:LANGUAGE',
