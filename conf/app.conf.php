@@ -10,9 +10,10 @@ use Seablast\Seablast\SeablastConfiguration;
 use Seablast\Seablast\SeablastConstant;
 
 return static function (SeablastConfiguration $SBConfig): void {
-//    $SBConfig->flag
-//        //->activate(SeablastConstant::FLAG_WEB_RUNNING)
-//    ;
+    $SBConfig->flag
+        //->activate(SeablastConstant::FLAG_WEB_RUNNING)
+        ->activate(I18nConstant::FLAG_SHOW_LANGUAGE_SELECTOR) // show language switcher if in latte
+    ;
     $SBConfig
         ->setArrayString(I18nConstant::LANGUAGE_LIST, ['en', 'cs']) // default list of supported languages
         ->setArrayArrayString(
