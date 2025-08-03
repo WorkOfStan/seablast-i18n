@@ -11,7 +11,7 @@ based on the `SeablastConstant::TRANSLATE_CLASS` which is initated in [app.conf.
 
 Use as: `const back = {="Zpět"|translate};`
 
-Note: In latte `SB:LANGUAGE` is only defined, if translation is done before, e.g.
+Note: In latte `SB:LANGUAGE` is only defined, if translation is done before, e.g. Therefore `{=''|translate}` in [views/uls.menu.latte](views/uls.menu.latte) precedes SB:LANGUAGE usage.
 
 ```javascript
 const back = {="Zpět"|translate};
@@ -83,7 +83,7 @@ To create the expected database table structure (for dictionary and localised it
 - Because typically `.htaccess` uses `RedirectMatch 404 vendor\/(?!seablast\/)` to make vendor folder off limits for web access except the seablast library, the jquery.uls is in [Seablast for PHP](https://github.com/WorkOfStan/seablast) since v0.2.11 and not in this module.
 - However, it's useful to know that to make the SVG icon in `.uls-trigger` adopt the `font-color` of the surrounding element, the following style was added into `uls/images/language.svg`: `fill="currentColor"`. Also `uls/css/jquery.uls.css` was changed (changed: `.uls-trigger`, added: `.uls-trigger icon` and `.uls-trigger .icon svg`).
 - Language is lazy inititated in SeablastView `$translator = new $translatorClass($this->model->getConfiguration());` which instantiates SeablastTranslate from which `$lang = new ApiLanguageModel($this->configuration, new \Seablast\Seablast\Superglobals());` is called. There `$this->configuration->setString('SB:LANGUAGE', $result);` is set.
-- `'/api/language'` using `'model' => '\Seablast\I18n\Models\ApiLanguageModel'` is also called from mit.js::window.languageSelector. First without parameter to get the language info (is it necessary, when in SB:LANGUAGE ? Maybe lazy. Todo investigate.) Then when uls.onSelect with parameter.
+- `'/api/language'` using `'model' => '\Seablast\I18n\Models\ApiLanguageModel'` is called from window.languageSelector when uls.onSelect with parameter.
 
 ### Localised data access
 
