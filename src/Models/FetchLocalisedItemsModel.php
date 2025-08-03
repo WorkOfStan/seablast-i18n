@@ -67,7 +67,11 @@ class FetchLocalisedItemsModel implements SeablastModelInterface
         // if it's not valid, no row is produced
         if (!$itemsGen->valid()) {
             // No item available. Either no item at all, or the particular itemId.
-            return (object) ['httpCode' => 404, 'message' => 'Žádné příspěvky.'];
+            return (object) [
+                    'httpCode' => 404,
+                    'message' => 'Žádné příspěvky.',
+                    'title' => "{$this->titlePrefix}Chyba"
+            ];
         }
         $item = $itemsGen->current();
         if (isset($item['title']) && is_string($item['title']) && !empty($item['title'])) {

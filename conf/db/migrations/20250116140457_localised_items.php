@@ -20,9 +20,8 @@ final class LocalisedItems extends AbstractMigration
     public function change(): void
     {
         // There are two localised mechanisms.
-        // a) key texts with localisation option
+        // a) key texts with localisation option (dictionary)
         // b) content tree with language localisation incl. friendly url
-        // todo move to sb/i18n
         // this is a)
         // Create the translations table
         $table = $this->table('translations', ['id' => false, 'primary_key' => ['id']]);

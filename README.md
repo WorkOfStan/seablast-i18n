@@ -76,6 +76,7 @@ To create the expected database table structure (for dictionary and localised it
 ### Language API
 
 - API `'/api/language'` using `'model' => '\Seablast\I18n\Models\ApiLanguageModel'` returns the selected language or it receives language to be set in the cookie 'sbLanguage'.
+- The cookie 'sbLanguage' is created only after change from the default language.
 
 ### Language selector
 
@@ -128,21 +129,26 @@ class BlogModel extends FetchLocalisedItemsModel
         $this->itemTypeId = 1; // Blog type ID
         $this->titlePrefix = "My special web - ";
         $this->titleSuffix = "Blog";
+        $configuration->mysqli(); // dbms prefix set up even if Seablast\Auth is not present and thus it's not
+        //already set up in SeablastController: `$this->identity = new $identityManager($this->configuration->mysqli());
         parent::__construct($configuration, $superglobals);
     }
 }
 ```
 
+Todo: find a way to initiate mysqli() automatically, so that it's not dependant on the Seablast\Auth presence.
+
+(See [Seablast\Dist BlogModel.php](https://github.com/WorkOfStan/seablast-dist/blob/main/src/Models/BlogModel.php).)
+
 This MODEL yields items one by one from the database in a lazy, memory efficient, way.
-The VIEW can display it as follows (including editability by admins):
-(todo the example code should be without edit here. With edit look in blog.latte in sb/dist.)
+The VIEW can display it as follows:
 
 ```latte
 {layout 'BlueprintWeb.latte'}
 {block mainblock}
 <h1>
     {ifset $itemId}
-        <a href="{$configuration->getString('SB_APP_ROOT_ABSOLUTE_URL')}/blog">Blog</a>
+        <a href="{$configuration->getString('SB_APP_ROOT_ABSOLUTE_URL')}/blog-r">Blog (read-only)</a>
     {else}
         Blog
     {/ifset}
@@ -153,17 +159,9 @@ The VIEW can display it as follows (including editability by admins):
         {* Check if $itemId is set to decide if we have multiple posts - If we have an “id” parameter, we’re in single‐post mode *}
         {ifset $itemId}
             {* single‐item mode: editable fields for admins *}
-            <h2 class="editable"
-                {if $configuration->flag->status('SB:USER_IS_AUTHENTICATED') && in_array($configuration->getInt('SB:USER_ROLE_ID'), [1,2])}
-                    data-api-parameter="val" data-api="api/poseidon/?t=localised_items&key=title&id={$item['item_id']}"
-                {/if}
-                >{$item['title']}</h2>
+            <h2>{$item['title']}</h2>
             {*<p class="post-date">Created at: {$item['created_at']}</p>*}
-            <div class="post-content editable"
-                 {if $configuration->flag->status('SB:USER_IS_AUTHENTICATED') && in_array($configuration->getInt('SB:USER_ROLE_ID'), [1,2])}
-                     data-api-parameter="val" data-api="api/poseidon/?t=localised_items&key=content&id={$item['item_id']}"
-                 {/if}
-                 >{$item['content']|breakLines}</div>
+            <div class="post-content">{$item['content']|breakLines}</div>
         {else}
             {* listing mode: links into each item TODO paging *}
             <h2><a href="?id={$item['item_id']}">{$item['title']}</a></h2>
@@ -174,3 +172,7 @@ The VIEW can display it as follows (including editability by admins):
 {/foreach}
 {/block}
 ```
+
+This code can be seen live in [Seablast\Dist blog-readonly.latte](https://github.com/WorkOfStan/seablast-dist/blob/main/views/blog-readonly.latte).
+The texts can also be directly editable by admins as seen in [Seablast\Dist blog-editable.latte](https://github.com/WorkOfStan/seablast-dist/blob/main/views/blog-editable.latte).
+(This of course requires users to be logged in, hence [Seablast\Auth](https://github.com/WorkOfStan/seablast-auth) is required.)
