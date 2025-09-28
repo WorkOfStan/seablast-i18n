@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### `Changed` for changes in existing functionality
 
+- chore: bumped the versions of GitHub Actions and blast.sh
+
 ### `Deprecated` for soon-to-be removed features
 
 ### `Removed` for now removed features
