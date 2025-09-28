@@ -68,6 +68,15 @@ To create the expected database table structure (for dictionary and localised it
     ],
 ```
 
+### Dictionary table: `translations`
+
+| Column              | Type        | Attributes                               | Description                                                             |
+| ------------------- | ----------- | ---------------------------------------- | ----------------------------------------------------------------------- |
+| `id`                | integer     | Primary key, auto-increment (`identity`) | Unique identifier for each translation entry.                           |
+| `language`          | string(5)   | Indexed, part of unique constraint       | Language code (e.g., `en`, `en_GB`). `NULL` indicates default language. |
+| `translation_key`   | string(255) | Indexed, part of unique constraint       | The lookup key used in the application (e.g., `"Save PDF"`, `"Back"`).  |
+| `translation_value` | text        |                                          | Localized string corresponding to the key in the given language.        |
+
 ## Integration
 
 - Seablast/Seablast::v0.2.11 contains `APP_DIR . '/vendor/seablast/i18n/conf/app.conf.php', // Seablast/i18n extension configuration` so use at least this Seablast version.
