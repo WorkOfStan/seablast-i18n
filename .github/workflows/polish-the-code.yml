@@ -46,7 +46,7 @@ jobs:
       - name: Invoke the Prettier fix
         uses: WorkOfStan/prettier-fix@v1.1.6.1
         with:
-          commit-changes: true
+          commit-changes: ${{ github.event_name != 'schedule' }}
 
   phpcs-phpcbf:
     needs: prettier-fix
@@ -59,12 +59,12 @@ jobs:
       - name: Invoke the PHPCS check and PHPCBF fix
         uses: WorkOfStan/phpcs-fix@v1.0.2
         with:
-          commit-changes: true
+          commit-changes: ${{ github.event_name != 'schedule' }}
           php-version: "7.4"
           stop-on-manual-fix: true
 
   super-linter:
     needs: phpcs-phpcbf
-    uses: WorkOfStan/seablast-actions/.github/workflows/linter.yml@v0.2.5.2
+    uses: WorkOfStan/seablast-actions/.github/workflows/linter.yml@dependabot/github_actions/super-linter/super-linter-8.2.0
     with:
       runs-on: "ubuntu-latest"
