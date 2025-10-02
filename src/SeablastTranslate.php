@@ -82,7 +82,7 @@ class SeablastTranslate
             'SELECT translation_key, translation_value FROM `' . $this->configuration->dbmsTablePrefix() //
             . 'translations` WHERE language = ?'
         );
-        $stmt->bind_param('s', $language);          
+        $stmt->bind_param('s', $language);
         $stmt->execute();
         $result = $stmt->get_result();
         if ($result === false) {
@@ -106,14 +106,14 @@ class SeablastTranslate
      */
     public function translate(string $original, ?string $language = null): string
     {
-        if(is_null($language)) {
+        if (is_null($language)) {
             $language = $this->getLanguage();
         } else {
-            if(!in_array($language, $this->configuration->getArrayString(I18nConstant::LANGUAGE_LIST))) {
+            if (!in_array($language, $this->configuration->getArrayString(I18nConstant::LANGUAGE_LIST))) {
                 throw new \Exception("`{$language}` is not among expected languages");
             }
         }
-        
+
         // Lazy init
         if (empty($this->translations) || empty($this->translations[$language])) {
             $this->retrieveTranslations($language);
