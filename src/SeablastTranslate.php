@@ -17,7 +17,7 @@ class SeablastTranslate
 
     /** @var SeablastConfiguration */
     private $configuration;
-    /** @var array<string> */
+    /** @var array<array<string>> */
     private $translations = [];
 
     /**
@@ -65,16 +65,24 @@ class SeablastTranslate
 
     /**
      * Populates $this->translations dictionary.
+     *
+     * @param string|null $language [OPTIONAL] If null, the current user's language is used.
+     * @return void
+     * @throws DbmsException
      */
-    private function retrieveTranslations(): void
+    private function retrieveTranslations(?string $language = null): void
     {
+        // validity of $language against `I18nConstant::LANGUAGE_LIST` was already checked
+        if (is_null($language)) {
+            $language = $this->getLanguage();
+        }
         //Debugger::barDump('retrieveTranslations called');
         // get translations from db to array according to the SB:LANGUAGE
         $stmt = $this->configuration->mysqli()->prepareStrict(
             'SELECT translation_key, translation_value FROM `' . $this->configuration->dbmsTablePrefix() //
             . 'translations` WHERE language = ?'
         );
-        $stmt->bind_param('s', $this->getLanguage());
+        $stmt->bind_param('s', $language);
         $stmt->execute();
         $result = $stmt->get_result();
         if ($result === false) {
@@ -83,19 +91,34 @@ class SeablastTranslate
         }
 
         while ($row = $result->fetch_assoc()) {
-            $this->translations[$row['translation_key']] = (string) $row['translation_value'];
+            $this->translations[$language][$row['translation_key']] = (string) $row['translation_value'];
         }
 
         $stmt->close();
     }
 
-    public function translate(string $original): string
+    /**
+     * Returns the dictionary translation of a string.
+     *
+     * @param string $original
+     * @param string|null $language [OPTIONAL] If null, the current user's language is used.
+     * @return string
+     */
+    public function translate(string $original, ?string $language = null): string
     {
+        if (is_null($language)) {
+            $language = $this->getLanguage();
+        } else {
+            if (!in_array($language, $this->configuration->getArrayString(I18nConstant::LANGUAGE_LIST))) {
+                throw new \Exception("`{$language}` is not among expected languages");
+            }
+        }
+
         // Lazy init
-        if (empty($this->translations)) {
-            $this->retrieveTranslations();
+        if (empty($this->translations) || empty($this->translations[$language])) {
+            $this->retrieveTranslations($language);
         }
         // $original => translated according to getString(SB:LANGUAGE)
-        return $this->translations[$original] ?? $original;
+        return $this->translations[$language][$original] ?? $original;
     }
 }
