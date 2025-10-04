@@ -109,7 +109,7 @@ class FetchLocalisedItemsModel implements SeablastModelInterface
                     item_type_id, active, created_at, updated_at
                 FROM `{$this->configuration->dbmsTablePrefix()}localised_items`
                 WHERE language = ? AND item_type_id = ? AND active = 1
-                ORDER BY created_at DESC
+                ORDER BY created_at DESC;
             ";
             $stmt = $this->configuration->mysqli()->prepareStrict($sql);
             $stmt->bind_param('si', $language, $itemTypeId);
@@ -120,7 +120,7 @@ class FetchLocalisedItemsModel implements SeablastModelInterface
                     id, item_id, language, parent_id, title, content,
                     friendly_url, item_type_id, active, created_at, updated_at
                 FROM `{$this->configuration->dbmsTablePrefix()}localised_items`
-                WHERE item_id = ? AND language = ? AND item_type_id = ? AND active = 1
+                WHERE item_id = ? AND language = ? AND item_type_id = ? AND active = 1;
             ";
             $stmt = $this->configuration->mysqli()->prepareStrict($sql);
             $stmt->bind_param('isi', $itemId, $language, $itemTypeId);

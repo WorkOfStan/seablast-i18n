@@ -26,7 +26,7 @@ class ApiLanguageModel extends GenericRestApiJsonModel
      */
     public function __construct(SeablastConfiguration $configuration, Superglobals $superglobals)
     {
-        // todo tato metoda opakuje parent::construct pro případ GET? refactor somehow?
+        // todo this method repeats parent::construct in case of a GET call? refactor somehow?
         $this->configuration = $configuration;
         // Read JSON from standard input if not pre-prepared
         $jsonInput = $this->configuration->exists(SeablastConstant::JSON_INPUT) //
@@ -76,6 +76,12 @@ class ApiLanguageModel extends GenericRestApiJsonModel
             ? self::response(200, 'Language set.') : self::response(500, 'Language failed');
     }
 
+    /**
+     * Checks existence of a cookie `sbLanguage` and validates it; or returns the default language.
+     *
+     * @return string
+     * @throws \Exception
+     */
     private function getLanguageValue(): string
     {
         // Check if the cookie exists and is not empty
@@ -110,7 +116,7 @@ class ApiLanguageModel extends GenericRestApiJsonModel
                 $this->data->language,
                 time() + 30 * 24 * 60 * 60, // expire time: days * hours * minutes * seconds
                 $this->configuration->getString(SeablastConstant::SB_SESSION_SET_COOKIE_PARAMS_PATH),
-                '', // default cookie host
+                '', // the default cookie host
                 true,
                 true
             );
