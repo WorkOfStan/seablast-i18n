@@ -3,10 +3,10 @@
   "description": "A lightweight internationalization (i18n) module designed for apps using the Seablast for PHP framework",
   "type": "library",
   "require": {
-    "php": ">=7.2 <8.5",
-    "nette/utils": "^3.2.10 || ^4.0.5",
+    "php": ">=7.2 <8.6",
+    "nette/utils": "^3.2.10 || ^4.0.5 || ^4.1.0",
     "robmorgan/phinx": "^0.12.13 || ^0.13.4 || ^0.14.0 || ^0.15.5 || ^0.16.5",
-    "tracy/tracy": "^2.9.8 || ^2.10.9",
+    "tracy/tracy": "^2.9.8 || ^2.10.9 || ^2.11.0",
     "webmozart/assert": "^1.10.0"
   },
   "require-dev": {
