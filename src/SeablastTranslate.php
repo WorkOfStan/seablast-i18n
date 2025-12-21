@@ -91,6 +91,7 @@ class SeablastTranslate
         }
 
         while ($row = $result->fetch_assoc()) {
+            Assert::string($row['translation_key']);
             $this->translations[$language][$row['translation_key']] = (string) $row['translation_value'];
         }
 
@@ -108,10 +109,8 @@ class SeablastTranslate
     {
         if (is_null($language)) {
             $language = $this->getLanguage();
-        } else {
-            if (!in_array($language, $this->configuration->getArrayString(I18nConstant::LANGUAGE_LIST))) {
-                throw new \Exception("`{$language}` is not among expected languages");
-            }
+        } elseif (!in_array($language, $this->configuration->getArrayString(I18nConstant::LANGUAGE_LIST))) {
+            throw new \Exception("`{$language}` is not among expected languages");
         }
 
         // Lazy init

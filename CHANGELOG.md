@@ -9,7 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### `Added` for new features
 
+- add PHP/8.5 support
+- add GitHub Action to commit-check
+
 ### `Changed` for changes in existing functionality
+
+- bump GitHub Actions
 
 ### `Deprecated` for soon-to-be removed features
 
