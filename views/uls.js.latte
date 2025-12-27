@@ -29,7 +29,7 @@
       console.log("languageSelector", language);
       var dfd = $.Deferred();
 
-      // if not flag ui_language, reject
+      // If the language selector feature flag is not enabled, reject immediately. {* Language switching endpoint exists, but the UI selector is gated by `I18n:SHOW_LANGUAGE_SELECTOR` to prevent exposing unfinished/tenant-specific i18n. *}
       if (env.flags.indexOf("I18n:SHOW_LANGUAGE_SELECTOR") === -1) {
         console.error("Note: UI language flag not enabled");
         return dfd.reject(new Error("UI language flag not enabled")).promise();

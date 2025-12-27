@@ -9,12 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### `Added` for new features
 
-- add PHP/8.5 support
-- add GitHub Action to commit-check
-
 ### `Changed` for changes in existing functionality
-
-- bump GitHub Actions
 
 ### `Deprecated` for soon-to-be removed features
 
@@ -23,6 +18,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### `Fixed` for any bugfixes
 
 ### `Security` in case of vulnerabilities
+
+## [0.1.2] - 2025-12-27
+
+### Added
+
+- add PHP/8.5 support
+- add GitHub Action to commit-check
+
+### Changed
+
+- bump GitHub Actions
 
 ## [0.1.1] - 2025-10-04
 
@@ -48,6 +54,7 @@ feat: library to handle language switching and localisation of selected strings
 - package limited to the tested PHP versions, i.e. "php": ">=7.2 <8.5"
 - API `'/api/language'` using `'model' => '\Seablast\I18n\Models\ApiLanguageModel'` returns the selected language or it receives language to be set in the cookie 'sbLanguage'.
 
-[Unreleased]: https://github.com/WorkOfStan/seablast-i18n/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/WorkOfStan/seablast-i18n/compare/v0.1.2...HEAD
+[0.1.2]: https://github.com/WorkOfStan/seablast-i18n/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/WorkOfStan/seablast-i18n/compare/v0.1...v0.1.1
 [0.1]: https://github.com/WorkOfStan/seablast-i18n/releases/tag/v0.1
