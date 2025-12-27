@@ -51,18 +51,19 @@ window.languageSelector(string language); // language is a IETF language tag in 
 ```
 
 And you need to take care of the page reload to update localised strings, such as:
+
 ```javascript
-    // switch language using Seablast/I18n mechanics and jQuery
-    $('select.language_selector').change(function () {
-      window.languageSelector($(this).val()).then(
-              function () {
-                location.reload();
-              },
-              function (err) {
-                console.error(err);
-              }
-      );
-    });
+// switch language using Seablast/I18n mechanics and jQuery
+$("select.language_selector").change(function () {
+  window.languageSelector($(this).val()).then(
+    function () {
+      location.reload();
+    },
+    function (err) {
+      console.error(err);
+    },
+  );
+});
 ```
 
 The `window.languageSelector` functions is declared in the `uls.js.latte`.
@@ -70,10 +71,11 @@ That function returns jQuery.Promise (a promise-like object with `.then()`, `.do
 and in the fulfillment value, there's JSON, e.g. `{message: 'en'}`.
 
 Btw: language switching endpoint exists, but the UI selector is gated by `I18n:SHOW_LANGUAGE_SELECTOR` to prevent exposing unfinished/tenant-specific i18n:
+
 ```js
-    const flags = [
-        'I18n:SHOW_LANGUAGE_SELECTOR', // turned on by default also in `conf/app.conf.php`
-    ];
+const flags = [
+  "I18n:SHOW_LANGUAGE_SELECTOR", // turned on by default also in `conf/app.conf.php`
+];
 ```
 
 Note: only languages from the configuration (e.g. `->setArrayString(I18nConstant::LANGUAGE_LIST, ['en', 'cs'])`) are accepted. The first one is the default one.
