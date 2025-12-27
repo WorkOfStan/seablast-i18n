@@ -29,7 +29,7 @@ class FetchLocalisedItemsModel implements SeablastModelInterface
     private $superglobals;
     /** @var string page title beginning set in the child class */
     protected $titlePrefix = "";
-    /** @var string page title ending  set in the child class*/
+    /** @var string page title ending set in the child class*/
     protected $titleSuffix = "";
 
     /**
