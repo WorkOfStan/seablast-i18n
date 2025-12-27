@@ -21,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.1.2] - 2025-12-27
 
+feat: add PHP/8.5 support
+
 ### Added
 
 - add PHP/8.5 support
