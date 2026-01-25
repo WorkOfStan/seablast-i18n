@@ -1,3 +1,4 @@
+{if $configuration->flag->status('I18n:SHOW_LANGUAGE_SELECTOR')}
     <script src="{$configuration->getString('SB_APP_ROOT_ABSOLUTE_URL')}/vendor/seablast/seablast/assets/uls/src/jquery.uls.data.js?v={$configuration->getInt('SB_WEB_FORCE_ASSET_VERSION')}"></script>
     <script src="{$configuration->getString('SB_APP_ROOT_ABSOLUTE_URL')}/vendor/seablast/seablast/assets/uls/src/jquery.uls.data.utils.js?v={$configuration->getInt('SB_WEB_FORCE_ASSET_VERSION')}"></script>
     <script src="{$configuration->getString('SB_APP_ROOT_ABSOLUTE_URL')}/vendor/seablast/seablast/assets/uls/src/jquery.uls.lcd.js?v={$configuration->getInt('SB_WEB_FORCE_ASSET_VERSION')}"></script>
@@ -87,3 +88,4 @@ $(document).on('sbI18nLanguageSelectorReady', function () {
   });
 });
     </script>
+{/if}

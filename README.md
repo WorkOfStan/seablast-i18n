@@ -44,6 +44,8 @@ To display the language selector, include the three `uls.*.latte` files as follo
 </html>
 ```
 
+Note:  The `I18n:SHOW_LANGUAGE_SELECTOR` flag controls whether the contents of all `uls.*.latte` templates are rendered. You don't need to wrap `uls.*.latte` includes in custom Latte templates with conditional logic—just include them, and the application will decide (via the `I18n:SHOW_LANGUAGE_SELECTOR` flag) whether they take effect.
+
 Instead of language selector, you can switch the language programatically by calling
 
 ```javascript
