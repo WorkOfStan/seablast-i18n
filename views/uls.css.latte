@@ -1,4 +1,5 @@
+{if $configuration->flag->status('I18n:SHOW_LANGUAGE_SELECTOR')}
     <link rel="stylesheet" href="{$configuration->getString('SB_APP_ROOT_ABSOLUTE_URL')}/vendor/seablast/seablast/assets/uls/css/jquery.uls.css?v={$configuration->getInt('SB_WEB_FORCE_ASSET_VERSION')}">
     <link rel="stylesheet" href="{$configuration->getString('SB_APP_ROOT_ABSOLUTE_URL')}/vendor/seablast/seablast/assets/uls/css/jquery.uls.grid.css?v={$configuration->getInt('SB_WEB_FORCE_ASSET_VERSION')}">
     <link rel="stylesheet" href="{$configuration->getString('SB_APP_ROOT_ABSOLUTE_URL')}/vendor/seablast/seablast/assets/uls/css/jquery.uls.lcd.css?v={$configuration->getInt('SB_WEB_FORCE_ASSET_VERSION')}">
-
+{/if}

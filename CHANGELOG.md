@@ -19,6 +19,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### `Security` in case of vulnerabilities
 
+## [0.1.3] - 2026-01-25
+
+feat: control rendering of `uls.*.latte` via the `I18n:SHOW_LANGUAGE_SELECTOR` flag
+
+### Changed
+
+- The `I18n:SHOW_LANGUAGE_SELECTOR` flag now controls whether the contents of all `uls.*.latte` templates are rendered. You no longer need to wrap `uls.*.latte` includes in custom Latte templates with conditional logic—just include them, and the application will decide (via the `I18n:SHOW_LANGUAGE_SELECTOR` flag) whether they take effect.
+
 ## [0.1.2] - 2025-12-27
 
 feat: add PHP/8.5 support
@@ -56,7 +64,8 @@ feat: library to handle language switching and localisation of selected strings
 - package limited to the tested PHP versions, i.e. "php": ">=7.2 <8.5"
 - API `'/api/language'` using `'model' => '\Seablast\I18n\Models\ApiLanguageModel'` returns the selected language or it receives language to be set in the cookie 'sbLanguage'.
 
-[Unreleased]: https://github.com/WorkOfStan/seablast-i18n/compare/v0.1.2...HEAD
+[Unreleased]: https://github.com/WorkOfStan/seablast-i18n/compare/v0.1.3...HEAD
+[0.1.3]: https://github.com/WorkOfStan/seablast-i18n/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/WorkOfStan/seablast-i18n/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/WorkOfStan/seablast-i18n/compare/v0.1...v0.1.1
 [0.1]: https://github.com/WorkOfStan/seablast-i18n/releases/tag/v0.1
