@@ -1,4 +1,4 @@
-# `Seablast\I18n`
+# `Seablast I18n`
 
 A lightweight internationalization (i18n) module designed for apps using the [Seablast for PHP](https://github.com/WorkOfStan/seablast) framework. Installable via Composer, it integrates seamlessly and activates only when needed, allowing you to effortlessly provide multilingual support and manage user language preferences.
 
@@ -44,7 +44,7 @@ To display the language selector, include the three `uls.*.latte` files as follo
 </html>
 ```
 
-Note: The `I18n:SHOW_LANGUAGE_SELECTOR` flag controls whether the contents of all `uls.*.latte` templates are rendered. You don't need to wrap `uls.*.latte` includes in custom Latte templates with conditional logic—just include them, and the application will decide (via the `I18n:SHOW_LANGUAGE_SELECTOR` flag) whether they take effect.
+Note: The `I18n:SHOW_LANGUAGE_SELECTOR` flag controls whether the contents of all `uls.*.latte` templates are rendered. As a result, you don't need to wrap `uls.*.latte` includes in custom Latte templates with conditional logic—just include them, and the application will decide (via the `I18n:SHOW_LANGUAGE_SELECTOR` flag) whether they take effect.
 
 Instead of language selector, you can switch the language programatically by calling
 
@@ -108,7 +108,7 @@ To create the expected database table structure (for dictionary and localised it
 ## Integration
 
 - Seablast/Seablast::v0.2.11 contains `APP_DIR . '/vendor/seablast/i18n/conf/app.conf.php', // Seablast/i18n extension configuration` so use at least this Seablast version.
-- `"seablast/seablast": "^0.2.7"` is in the `require-dev` section of `composer.json` because the app that uses Seablast\I18n may use whatever dev version of Seablast.
+- `"seablast/seablast": "^0.2.7"` is in the `require-dev` section of `composer.json` because the app that uses Seablast I18n may use whatever dev version of Seablast.
 
 ### Language API
 
