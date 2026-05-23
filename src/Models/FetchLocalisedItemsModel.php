@@ -14,6 +14,8 @@ use Tracy\Debugger;
 
 /**
  * Retrieve items from database
+ * 
+ * TODO: consider POST (update) and DELETE methods. Or leave that to administration?
  */
 class FetchLocalisedItemsModel implements SeablastModelInterface
 {
