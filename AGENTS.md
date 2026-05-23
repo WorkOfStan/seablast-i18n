@@ -21,7 +21,7 @@
 ## Development Notes
 
 - Keep changes focused and update `CHANGELOG.md` in English for user-visible changes.
-- Do not remove comments unless the comment is a TODO that the change actually resolves; improve unclear comments in English.
+- Do not remove comments unless the comment is a `TODO` that the change actually resolves; improve unclear comments in English.
 - Do not run `.sh` helper scripts directly from PowerShell on Windows. Use Git Bash explicitly, for example `& "C:\Program Files\Git\bin\bash.exe" -lc "./blast.sh phpstan"`.
 - When running Composer on Windows, use `$env:COMPOSER_CACHE_DIR = "$PWD\.composer-cache"` and `php "C:\ProgramData\ComposerSetup\bin\composer.phar" install`.
 - Do not inspect or recurse into generated/cache directories such as `vendor`, `.tmp`, or build artifacts unless the task explicitly requires it.
