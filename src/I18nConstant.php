@@ -6,21 +6,21 @@ namespace Seablast\I18n;
 
 /**
  * @api
- * Strings MUST NOT start with SB to avoid unintended value collision
+ * Project-specific i18n configuration keys should not start with SB, to avoid unintended collisions.
+ * LANGUAGE intentionally aliases Seablast's reserved `SB:LANGUAGE` key because Latte reads it directly.
  */
 class I18nConstant
 {
     /**
-     * @var string Flag if to use i18n and show language selector
+     * @var string Feature flag controlling whether bundled language selector templates render.
      */
     public const FLAG_SHOW_LANGUAGE_SELECTOR = 'I18n:SHOW_LANGUAGE_SELECTOR';
     /**
-     * @var string string selected language `SB:LANGUAGE` reserved in Seablast\Seablast
-     * latte uses 'SB:LANGUAGE' directly, so it's ok to use it directly also in the PHP code
+     * @var string Current language key, reserved in Seablast\Seablast.
      */
     public const LANGUAGE = 'SB:LANGUAGE';
     /**
-     * @var string string[] supported languages
+     * @var string Configuration key for supported language codes (`string[]`).
      */
     public const LANGUAGE_LIST = 'I18nSB:LANGUAGE_LIST';
 }

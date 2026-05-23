@@ -9,7 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### `Added` for new features
 
+- Added `AGENTS.md` with library integration and maintenance notes for agents.
+
 ### `Changed` for changes in existing functionality
+
+- Clarified README and code comments so language handling, selector gating, and cookie behavior match the implementation.
 
 ### `Deprecated` for soon-to-be removed features
 
@@ -27,7 +31,7 @@ feat: control rendering of `uls.*.latte` via the `I18n:SHOW_LANGUAGE_SELECTOR` f
 
 ### Changed
 
-- The `I18n:SHOW_LANGUAGE_SELECTOR` flag now controls whether the contents of all `uls.*.latte` templates are rendered. You no longer need to wrap `uls.*.latte` includes in custom Latte templates with conditional logic—just include them, and the application will decide (via the `I18n:SHOW_LANGUAGE_SELECTOR` flag) whether they take effect.
+- The `I18n:SHOW_LANGUAGE_SELECTOR` flag now controls whether the contents of all `uls.*.latte` templates are rendered. You no longer need to wrap `uls.*.latte` includes in custom Latte templates with conditional logic; just include them, and the application will decide (via the `I18n:SHOW_LANGUAGE_SELECTOR` flag) whether they take effect.
 
 ## [0.1.2] - 2025-12-27
 
@@ -61,7 +65,7 @@ feat: library to handle language switching and localisation of selected strings
 ### Added
 
 - `/api/language` accesses `\Seablast\I18n\Models\ApiLanguageModel`
-- ULS langugage selector
+- ULS language selector
 - localised items migration
 - package limited to the tested PHP versions, i.e. "php": ">=7.2 <8.5"
 - API `'/api/language'` using `'model' => '\Seablast\I18n\Models\ApiLanguageModel'` returns the selected language or it receives language to be set in the cookie 'sbLanguage'.

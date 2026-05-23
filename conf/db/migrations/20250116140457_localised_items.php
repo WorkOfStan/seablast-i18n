@@ -27,7 +27,7 @@ final class LocalisedItems extends AbstractMigration
         $table = $this->table('translations', ['id' => false, 'primary_key' => ['id']]);
         $table
             ->addColumn('id', 'integer', ['identity' => true])
-            // Language code (e.g., "en", "en_GB") NULL for default language
+            // Configured language code, e.g. "en" or "cs"
             ->addColumn('language', 'string', ['limit' => 5])
             ->addColumn('translation_key', 'string', ['limit' => 255])
             ->addColumn('translation_value', 'text')
@@ -47,7 +47,7 @@ final class LocalisedItems extends AbstractMigration
         $localisedItemsTable = $this->table('localised_items');
         $localisedItemsTable
             ->addColumn('item_id', 'integer') // Item identifier
-            // Language code (e.g., "en", "en_GB") NULL for default language
+            // Configured language code, e.g. "en" or "cs"
             ->addColumn('language', 'string', ['limit' => 5, 'null' => true])
             ->addColumn('parent_id', 'integer', ['null' => true]) // Parent item ID
             ->addColumn('title', 'string', ['limit' => 255]) // Title of the item

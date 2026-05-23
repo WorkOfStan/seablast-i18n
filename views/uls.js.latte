@@ -23,14 +23,14 @@
      * Selects a new UI language.
      * Returns a jQuery Promise that resolves when the selection is fully applied.
      *
-     * @param {string} language — language code, e.g. 'en', 'cs'
+     * @param {string} language - configured language code, e.g. 'en', 'cs'
      * @returns {jQuery.Promise}
      */
     window.languageSelector = function (language) {
       console.log("languageSelector", language);
       var dfd = $.Deferred();
 
-      // If the language selector feature flag is not enabled, reject immediately. {* Language switching endpoint exists, but the UI selector is gated by `I18n:SHOW_LANGUAGE_SELECTOR` to prevent exposing unfinished/tenant-specific i18n. *}
+      // Language switching is available through the API, but this UI helper is feature-gated.
       if (env.flags.indexOf("I18n:SHOW_LANGUAGE_SELECTOR") === -1) {
         console.error("Note: UI language flag not enabled");
         return dfd.reject(new Error("UI language flag not enabled")).promise();

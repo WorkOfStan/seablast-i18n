@@ -13,7 +13,7 @@ use stdClass;
 use Tracy\Debugger;
 
 /**
- * API returns the selected language or it receives language to be set in the cookie 'sbLanguage'.
+ * API returns the selected language or accepts a language to store in the cookie 'sbLanguage'.
  */
 class ApiLanguageModel extends GenericRestApiJsonModel
 {
@@ -26,7 +26,7 @@ class ApiLanguageModel extends GenericRestApiJsonModel
      */
     public function __construct(SeablastConfiguration $configuration, Superglobals $superglobals)
     {
-        // todo this method repeats parent::construct in case of a GET call? refactor somehow?
+        // Initialise the generic JSON model only when a JSON request body is available.
         $this->configuration = $configuration;
         // Read JSON from standard input if not pre-prepared
         $jsonInput = $this->configuration->exists(SeablastConstant::JSON_INPUT) //
@@ -36,7 +36,7 @@ class ApiLanguageModel extends GenericRestApiJsonModel
         if (is_string($jsonInput) && !empty($jsonInput)) {
             $decoded = json_decode($jsonInput, true);
             if (json_last_error() !== JSON_ERROR_NONE) {
-                // TODO explore to make more straightforward. This happens when lang check is invoked when email login
+                // TODO: Make this more straightforward. This can happen when language detection runs during email login.
                 Debugger::barDump('$jsonInput does not contain a valid JSON. No JSON checks invoked.');
             } else {
                 if (!array_key_exists('REQUEST_METHOD', $superglobals->server)) {

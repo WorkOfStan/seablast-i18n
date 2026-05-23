@@ -1,17 +1,16 @@
 # `Seablast I18n`
 
-A lightweight internationalization (i18n) module designed for apps using the [Seablast for PHP](https://github.com/WorkOfStan/seablast) framework. Installable via Composer, it integrates seamlessly and activates only when needed, allowing you to effortlessly provide multilingual support and manage user language preferences.
+A lightweight internationalization (i18n) module for apps using the [Seablast for PHP](https://github.com/WorkOfStan/seablast) framework. It provides a Latte translation filter, a language-selection API, optional Universal Language Selector templates, and Phinx migrations for translation data.
 
 ## Usage
 
 ### UI
 
-Latte filter `translate` which uses dictionary, is set-up in Seablast::SeablastView::renderLatte()
-based on the `SeablastConstant::TRANSLATE_CLASS` which is initated in [app.conf.php](conf/app.conf.php).
+The Latte filter `translate` uses the dictionary loaded by `Seablast\I18n\SeablastTranslate`. Seablast registers it in `Seablast\SeablastView::renderLatte()` from the `SeablastConstant::TRANSLATE_CLASS` setting defined in [app.conf.php](conf/app.conf.php).
 
 Use as: `const back = {="Zpět"|translate};`
 
-Note: In latte `SB:LANGUAGE` is only defined, if translation is done before, e.g. Therefore `{=''|translate}` in [views/uls.menu.latte](views/uls.menu.latte) precedes SB:LANGUAGE usage.
+Note: In Latte, `SB:LANGUAGE` is defined lazily by the translator. For that reason, `{=''|translate}` in [views/uls.menu.latte](views/uls.menu.latte) runs before `SB:LANGUAGE` is read.
 
 ```javascript
 const back = {="Zpět"|translate};
@@ -44,15 +43,15 @@ To display the language selector, include the three `uls.*.latte` files as follo
 </html>
 ```
 
-Note: The `I18n:SHOW_LANGUAGE_SELECTOR` flag controls whether the contents of all `uls.*.latte` templates are rendered. As a result, you don't need to wrap `uls.*.latte` includes in custom Latte templates with conditional logic—just include them, and the application will decide (via the `I18n:SHOW_LANGUAGE_SELECTOR` flag) whether they take effect.
+Note: The `I18n:SHOW_LANGUAGE_SELECTOR` flag controls whether the contents of all `uls.*.latte` templates are rendered. As a result, you do not need to wrap `uls.*.latte` includes in custom Latte conditions; include them, and the application decides whether they take effect.
 
-Instead of language selector, you can switch the language programatically by calling
+Instead of using the language selector, you can switch the language programmatically by calling:
 
 ```javascript
-window.languageSelector(string language); // language is a IETF language tag in lowercase, for example: en, fi, ku-latn
+window.languageSelector(string language); // language is one of the configured language codes, for example: en, cs
 ```
 
-And you need to take care of the page reload to update localised strings, such as:
+The caller is responsible for reloading or re-rendering the page so translated strings update:
 
 ```javascript
 // switch language using Seablast/I18n mechanics and jQuery
@@ -68,11 +67,11 @@ $("select.language_selector").change(function () {
 });
 ```
 
-The `window.languageSelector` functions is declared in the `uls.js.latte`.
+The `window.languageSelector` function is declared in `uls.js.latte`.
 That function returns jQuery.Promise (a promise-like object with `.then()`, `.done()`, `.fail()`, `.always()`)
 and in the fulfillment value, there's JSON, e.g. `{message: 'en'}`.
 
-Btw: language switching endpoint exists, but the UI selector is gated by `I18n:SHOW_LANGUAGE_SELECTOR` to prevent exposing unfinished/tenant-specific i18n:
+The language switching endpoint exists independently, but the UI selector is gated by `I18n:SHOW_LANGUAGE_SELECTOR` to prevent exposing unfinished or tenant-specific i18n:
 
 ```js
 const flags = [
@@ -80,7 +79,7 @@ const flags = [
 ];
 ```
 
-Note: only languages from the configuration (e.g. `->setArrayString(I18nConstant::LANGUAGE_LIST, ['en', 'cs'])`) are accepted. The first one is the default one.
+Note: only languages from the configuration (e.g. `->setArrayString(I18nConstant::LANGUAGE_LIST, ['en', 'cs'])`) are accepted. The first configured language is the default.
 
 ### Database structure
 
@@ -101,7 +100,7 @@ To create the expected database table structure (for dictionary and localised it
 | Column              | Type        | Attributes                               | Description                                                             |
 | ------------------- | ----------- | ---------------------------------------- | ----------------------------------------------------------------------- |
 | `id`                | integer     | Primary key, auto-increment (`identity`) | Unique identifier for each translation entry.                           |
-| `language`          | string(5)   | Indexed, part of unique constraint       | Language code (e.g., `en`, `en_GB`). `NULL` indicates default language. |
+| `language`          | string(5)   | Indexed, part of unique constraint       | Configured language code (for example `en` or `cs`).                    |
 | `translation_key`   | string(255) | Indexed, part of unique constraint       | The lookup key used in the application (e.g., `"Save PDF"`, `"Back"`).  |
 | `translation_value` | text        |                                          | Localized string corresponding to the key in the given language.        |
 
@@ -112,14 +111,14 @@ To create the expected database table structure (for dictionary and localised it
 
 ### Language API
 
-- API `'/api/language'` using `'model' => '\Seablast\I18n\Models\ApiLanguageModel'` returns the selected language or it receives language to be set in the cookie 'sbLanguage'.
-- The cookie 'sbLanguage' is created only after change from the default language.
+- API `'/api/language'` using `'model' => '\Seablast\I18n\Models\ApiLanguageModel'` returns the selected language or accepts a language to store in the cookie 'sbLanguage'.
+- The cookie 'sbLanguage' is created after a successful language-selection request.
 
 ### Language selector
 
 - Because typically `.htaccess` uses `RedirectMatch 404 vendor\/(?!seablast\/)` to make vendor folder off limits for web access except the seablast library, the jquery.uls is in [Seablast for PHP](https://github.com/WorkOfStan/seablast) since v0.2.11 and not in this module.
 - However, it's useful to know that to make the SVG icon in `.uls-trigger` adopt the `font-color` of the surrounding element, the following style was added into `uls/images/language.svg`: `fill="currentColor"`. Also `uls/css/jquery.uls.css` was changed (changed: `.uls-trigger`, added: `.uls-trigger icon` and `.uls-trigger .icon svg`).
-- Language is lazy inititated in SeablastView `$translator = new $translatorClass($this->model->getConfiguration());` which instantiates SeablastTranslate from which `$lang = new ApiLanguageModel($this->configuration, new \Seablast\Seablast\Superglobals());` is called. There `$this->configuration->setString('SB:LANGUAGE', $result);` is set.
+- Language is lazy-initialised in SeablastView: `$translator = new $translatorClass($this->model->getConfiguration());` instantiates SeablastTranslate, which calls `$lang = new ApiLanguageModel($this->configuration, new \Seablast\Seablast\Superglobals());`. There `$this->configuration->setString('SB:LANGUAGE', $result);` is set.
 - `'/api/language'` using `'model' => '\Seablast\I18n\Models\ApiLanguageModel'` is called from window.languageSelector when uls.onSelect with parameter.
 
 ### Localised data access
@@ -173,7 +172,7 @@ class BlogModel extends FetchLocalisedItemsModel
 }
 ```
 
-Todo: find a way to initiate mysqli() automatically, so that it's not dependant on the Seablast\Auth presence.
+TODO: Find a way to initialise mysqli() automatically, so that it is not dependent on the Seablast\Auth presence.
 
 (See [Seablast\Dist BlogModel.php](https://github.com/WorkOfStan/seablast-dist/blob/main/src/Models/BlogModel.php).)
 

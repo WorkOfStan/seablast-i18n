@@ -13,8 +13,8 @@ use stdClass;
 use Tracy\Debugger;
 
 /**
- * Retrieve items from database
- * 
+ * Retrieve active localised items from the database.
+ *
  * TODO: consider POST (update) and DELETE methods. Or leave that to administration?
  */
 class FetchLocalisedItemsModel implements SeablastModelInterface
@@ -31,13 +31,13 @@ class FetchLocalisedItemsModel implements SeablastModelInterface
     private $superglobals;
     /** @var string page title beginning set in the child class */
     protected $titlePrefix = "";
-    /** @var string page title ending set in the child class*/
+    /** @var string page title ending set in the child class */
     protected $titleSuffix = "";
 
     /**
      * @param SeablastConfiguration $configuration
      * @param Superglobals $superglobals
-     * @throw \Exception if unimplemented HTTP method call
+     * @throws \Exception if an unsupported HTTP method is used
      */
     public function __construct(SeablastConfiguration $configuration, Superglobals $superglobals)
     {
@@ -61,7 +61,7 @@ class FetchLocalisedItemsModel implements SeablastModelInterface
     public function knowledge(): stdClass
     {
         $translate = new SeablastTranslate($this->configuration);
-        $language = $translate->getLanguage(); // ISO 639-1 = 2-letter language code
+        $language = $translate->getLanguage(); // configured language code
         // get Generator
         $itemsGen = $this->fetchItems($language, $this->itemTypeId, $this->itemId);
         // move to the first yield - which run the code till the first `yield`
@@ -89,7 +89,7 @@ class FetchLocalisedItemsModel implements SeablastModelInterface
     /**
      * Yield items one by one from the database.
      *
-     * @param  string        $language   ISO 639-1 language code
+     * @param  string        $language   Configured language code
      * @param  int           $itemTypeId Item type identifier
      * @param  int|null      $itemId     Specific blog item_id, or null for all
      * @return \Generator<int,array<string,mixed>>  Generator yielding each row as an associative array
