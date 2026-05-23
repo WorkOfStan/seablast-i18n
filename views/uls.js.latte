@@ -27,12 +27,9 @@
      * @returns {jQuery.Promise}
      */
     window.languageSelector = function (language) {
-      console.log("languageSelector", language);
-      var dfd = $.Deferred();
-
       // Language switching is available through the API, but this UI helper is feature-gated.
       if (env.flags.indexOf("I18n:SHOW_LANGUAGE_SELECTOR") === -1) {
-        console.error("Note: UI language flag not enabled");
+        const dfd = $.Deferred();
         return dfd.reject(new Error("UI language flag not enabled")).promise();
       }
 
@@ -50,42 +47,38 @@
         }),
       };
 
-      $.ajax(ajaxOptions)
-              .done((res) => {
-                console.log("LANG REQUESTED", res);
-                dfd.resolve(res);
-              })
-              .fail((xhr, status, err) => {
-                console.error("Language error", status, err);
+      return $.ajax(ajaxOptions)
+              .fail(() => {
                 errorLogger.log("/api/language error", "error");
-                dfd.reject(err);
               });
-      return dfd.promise();
     };
-    // dispatch the event after window.languageSelector ready
-    document.dispatchEvent(new CustomEvent("sbI18nLanguageSelectorReady"));
-  });
-})();
-    </script>
-    <script>
-$(document).on('sbI18nLanguageSelectorReady', function () {
-  console.log('>>> sbI18nLanguageSelectorReady: Now we can initialize ULS and call languageSelector without any worries.');
-  $(function () {
+
+    const quickList = {$configuration->getArrayString('I18nSB:LANGUAGE_LIST')};
+    const languages = {};
+
+    quickList.forEach(function (code) {
+      languages[code] = $.uls.data.getAutonym(code) || code;
+    });
+
     $('.uls-trigger').uls({
       onSelect: function (language) {
-        $.when(window.languageSelector(language))
+        window.languageSelector(language)
                 .done(function () {
                   location.reload();
                 })
                 .fail(function () {
-                  console.error('languageSelector failed for', language);
+                  errorLogger.log("languageSelector failed", "error");
                 });
       },
-      quickList: {$configuration->getArrayString('I18nSB:LANGUAGE_LIST')},
-      languages: {'cs': 'čeština', 'en': 'English'} {* Note: only the languages in quickList will be displayed *}
-      //quickList: [ 'en', 'hi', 'he', 'ml', 'ta', 'fr' ]
+      languages,
+      quickList,
+      // Only configured languages are shown; labels come from ULS data.
+      // quickList: [ 'en', 'hi', 'he', 'ml', 'ta', 'fr' ]
     });
+
+    // Dispatch the event after window.languageSelector is ready and ULS is initialized.
+    document.dispatchEvent(new CustomEvent("sbI18nLanguageSelectorReady"));
   });
-});
+})();
     </script>
 {/if}

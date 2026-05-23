@@ -19,6 +19,8 @@ class ApiLanguageModel extends GenericRestApiJsonModel
 {
     use \Nette\SmartObject;
 
+    private const COOKIE_LANGUAGE = 'sbLanguage';
+
     /**
      * @param SeablastConfiguration $configuration
      * @param Superglobals $superglobals
@@ -26,26 +28,28 @@ class ApiLanguageModel extends GenericRestApiJsonModel
      */
     public function __construct(SeablastConfiguration $configuration, Superglobals $superglobals)
     {
-        // Initialise the generic JSON model only when a JSON request body is available.
         $this->configuration = $configuration;
         // Read JSON from standard input if not pre-prepared
         $jsonInput = $this->configuration->exists(SeablastConstant::JSON_INPUT) //
             ? $this->configuration->getString(SeablastConstant::JSON_INPUT) : file_get_contents('php://input');
-        Debugger::barDump($jsonInput, 'JSON input from php://input or SeablastConstant::JSON_INPUT');
+
         // Invoke JSON check only if present, otherwise $this->getLanguageValue() will be triggered in knowledge()
-        if (is_string($jsonInput) && !empty($jsonInput)) {
-            $decoded = json_decode($jsonInput, true);
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                // TODO: Make this more straightforward. This can happen when language detection runs during email login.
-                Debugger::barDump('$jsonInput does not contain a valid JSON. No JSON checks invoked.');
-            } else {
-                if (!array_key_exists('REQUEST_METHOD', $superglobals->server)) {
-                    // otherwise login by email fails
-                    $superglobals->server['REQUEST_METHOD'] = 'POST';
-                }
-                parent::__construct($this->configuration, $superglobals);
-            }
+        if (!is_string($jsonInput) || $jsonInput === '') {
+            return;
         }
+
+        json_decode($jsonInput);
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            // TODO: Make this more straightforward. This can happen when language detection runs during email login.
+            Debugger::barDump('$jsonInput does not contain a valid JSON. No JSON checks invoked.');
+            return;
+        }
+
+        if (!array_key_exists('REQUEST_METHOD', $superglobals->server)) {
+            // otherwise login by email fails
+            $superglobals->server['REQUEST_METHOD'] = 'POST';
+        }
+        parent::__construct($this->configuration, $superglobals);
     }
 
     /**
@@ -64,15 +68,16 @@ class ApiLanguageModel extends GenericRestApiJsonModel
             // return the set or the default language
             return self::response(200, $this->getLanguageValue());
         }
-        // check lang vs lang list
+
+        $language = $this->data->language;
         if (
-            !is_string($this->data->language) ||
-            !in_array($this->data->language, $this->configuration->getArrayString(I18nConstant::LANGUAGE_LIST))
+            !is_string($language)
+            || !in_array($language, $this->configuration->getArrayString(I18nConstant::LANGUAGE_LIST), true)
         ) {
             return self::response(400, 'Language not supported.');
         }
 
-        return $this->setLanguageCookie() //
+        return $this->setLanguageCookie($language) //
             ? self::response(200, 'Language set.') : self::response(500, 'Language failed');
     }
 
@@ -84,23 +89,28 @@ class ApiLanguageModel extends GenericRestApiJsonModel
      */
     private function getLanguageValue(): string
     {
+        $languages = $this->configuration->getArrayString(I18nConstant::LANGUAGE_LIST);
+
         // Check if the cookie exists and is not empty
         if (
-            !empty($_COOKIE['sbLanguage']) && is_string($_COOKIE['sbLanguage']) //
-            && in_array($_COOKIE['sbLanguage'], $this->configuration->getArrayString(I18nConstant::LANGUAGE_LIST))
+            !empty($_COOKIE[self::COOKIE_LANGUAGE]) && is_string($_COOKIE[self::COOKIE_LANGUAGE]) //
+            && in_array($_COOKIE[self::COOKIE_LANGUAGE], $languages, true)
         ) {
-            $this->configuration->setString(I18nConstant::LANGUAGE, (string) $_COOKIE['sbLanguage']);
-            return (string) $_COOKIE['sbLanguage'];
+            return $this->useLanguage((string) $_COOKIE[self::COOKIE_LANGUAGE]);
         }
 
         // If cookie is not set or empty or unsupported, return the first value of the language list
-        $langList = $this->configuration->getArrayString(I18nConstant::LANGUAGE_LIST);
-        $result = reset($langList);
+        $result = reset($languages);
         if ($result === false) {
             throw new \Exception('LANGUAGE_LIST is empty');
         }
-        $this->configuration->setString(I18nConstant::LANGUAGE, $result);
-        return $result;
+        return $this->useLanguage($result);
+    }
+
+    private function useLanguage(string $language): string
+    {
+        $this->configuration->setString(I18nConstant::LANGUAGE, $language);
+        return $language;
     }
 
     /**
@@ -108,19 +118,16 @@ class ApiLanguageModel extends GenericRestApiJsonModel
      *
      * @return bool
      */
-    private function setLanguageCookie(): bool
+    private function setLanguageCookie(string $language): bool
     {
-        if (isset($this->data->language) && is_string($this->data->language)) {
-            return setcookie(
-                'sbLanguage',
-                $this->data->language,
-                time() + 30 * 24 * 60 * 60, // expire time: days * hours * minutes * seconds
-                $this->configuration->getString(SeablastConstant::SB_SESSION_SET_COOKIE_PARAMS_PATH),
-                '', // the default cookie host
-                true,
-                true
-            );
-        }
-        return false;
+        return setcookie(
+            self::COOKIE_LANGUAGE,
+            $language,
+            time() + 30 * 24 * 60 * 60, // expire time: days * hours * minutes * seconds
+            $this->configuration->getString(SeablastConstant::SB_SESSION_SET_COOKIE_PARAMS_PATH),
+            '', // the default cookie host
+            true,
+            true
+        );
     }
 }

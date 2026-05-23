@@ -6,10 +6,9 @@ namespace Seablast\I18n;
 
 use Seablast\I18n\Models\ApiLanguageModel;
 use Seablast\Seablast\Exceptions\DbmsException;
+use Seablast\Seablast\Exceptions\SeablastConfigurationException;
 use Seablast\Seablast\SeablastConfiguration;
-use Tracy\Debugger;
-use Tracy\ILogger;
-use Webmozart\Assert\Assert;
+use Seablast\Seablast\Superglobals;
 
 class SeablastTranslate
 {
@@ -17,7 +16,9 @@ class SeablastTranslate
 
     /** @var SeablastConfiguration */
     private $configuration;
-    /** @var array<array<string>> */
+    /** @var array<string,bool> */
+    private $loadedLanguages = [];
+    /** @var array<string,array<string,string>> */
     private $translations = [];
 
     /**
@@ -25,59 +26,42 @@ class SeablastTranslate
      */
     public function __construct(SeablastConfiguration $configuration)
     {
-        $this->configuration = $configuration; //for getString(SB:LANGUAGE) and database
-        // @phpstan-ignore notIdentical.alwaysFalse
-        if (I18nConstant::LANGUAGE !== 'SB:LANGUAGE') {
-            Debugger::barDump(
-                'Latte uses `SB:LANGUAGE` directly, so it MUST be equal to I18nConstant::LANGUAGE in configuration',
-                'SB:LANGUAGE ERROR'
-            );
-            Debugger::log(
-                'Latte uses `SB:LANGUAGE` directly, so it MUST be equal to I18nConstant::LANGUAGE in configuration',
-                ILogger::ERROR
-            );
-        }
+        $this->configuration = $configuration;
     }
 
     /**
      * Lazy language getter.
-     * Invoke ApiLanguageModel ONLY IF `SB:LANGUAGE` is not defined.
+     * Invoke ApiLanguageModel only if the language is not defined yet.
      *
      * @return string
      * @throws \RuntimeException
      */
     public function getLanguage(): string
     {
-        if (!$this->configuration->exists('SB:LANGUAGE')) {
-            $lang = new ApiLanguageModel($this->configuration, new \Seablast\Seablast\Superglobals());
+        if (!$this->configuration->exists(I18nConstant::LANGUAGE)) {
+            $lang = new ApiLanguageModel($this->configuration, new Superglobals());
             $langKnowledge = $lang->knowledge();
-            Debugger::barDump($langKnowledge, 'lang knowledge');
-            Assert::eq($langKnowledge->httpCode, 200, 'Language settings failed.');
-            Debugger::barDump($this->configuration->getString('SB:LANGUAGE'), 'Lazy init of language');
-            // re-check whether SB:LANGUAGE was actually set
-            // @phpstan-ignore booleanNot.alwaysTrue
-            if (!$this->configuration->exists('SB:LANGUAGE')) {
-                throw new \RuntimeException('missing language'); // Note: there might not be a default language.
+            if ($langKnowledge->httpCode !== 200) {
+                throw new \RuntimeException('Language settings failed.');
             }
         }
-        return $this->configuration->getString('SB:LANGUAGE');
+
+        try {
+            return $this->configuration->getString(I18nConstant::LANGUAGE);
+        } catch (SeablastConfigurationException $e) {
+            throw new \RuntimeException('Language settings failed.', 0, $e);
+        }
     }
 
     /**
      * Populates $this->translations dictionary.
      *
-     * @param string|null $language [OPTIONAL] If null, the current user's language is used.
+     * @param string $language
      * @return void
      * @throws DbmsException
      */
-    private function retrieveTranslations(?string $language = null): void
+    private function retrieveTranslations(string $language): void
     {
-        // validity of $language against `I18nConstant::LANGUAGE_LIST` was already checked
-        if (is_null($language)) {
-            $language = $this->getLanguage();
-        }
-        //Debugger::barDump('retrieveTranslations called');
-        // get translations from db to array according to the SB:LANGUAGE
         $stmt = $this->configuration->mysqli()->prepareStrict(
             'SELECT translation_key, translation_value FROM `' . $this->configuration->dbmsTablePrefix() //
             . 'translations` WHERE language = ?'
@@ -86,16 +70,16 @@ class SeablastTranslate
         $stmt->execute();
         $result = $stmt->get_result();
         if ($result === false) {
-            // Database Tracy BarPanel is displayed in try-catch in SeablastView
             throw new DbmsException('Stmt get_result failed');
         }
 
+        $this->translations[$language] = [];
         while ($row = $result->fetch_assoc()) {
-            Assert::string($row['translation_key']);
-            $this->translations[$language][$row['translation_key']] = (string) $row['translation_value'];
+            $this->translations[$language][(string) $row['translation_key']] = (string) $row['translation_value'];
         }
 
         $stmt->close();
+        $this->loadedLanguages[$language] = true;
     }
 
     /**
@@ -109,15 +93,14 @@ class SeablastTranslate
     {
         if (is_null($language)) {
             $language = $this->getLanguage();
-        } elseif (!in_array($language, $this->configuration->getArrayString(I18nConstant::LANGUAGE_LIST))) {
+        } elseif (!in_array($language, $this->configuration->getArrayString(I18nConstant::LANGUAGE_LIST), true)) {
             throw new \Exception("`{$language}` is not among expected languages");
         }
 
-        // Lazy init
-        if (empty($this->translations) || empty($this->translations[$language])) {
+        if (!isset($this->loadedLanguages[$language])) {
             $this->retrieveTranslations($language);
         }
-        // $original => translated according to getString(SB:LANGUAGE)
+
         return $this->translations[$language][$original] ?? $original;
     }
 }

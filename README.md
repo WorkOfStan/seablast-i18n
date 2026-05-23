@@ -97,12 +97,12 @@ To create the expected database table structure (for dictionary and localised it
 
 ### Dictionary table: `translations`
 
-| Column              | Type        | Attributes                               | Description                                                             |
-| ------------------- | ----------- | ---------------------------------------- | ----------------------------------------------------------------------- |
-| `id`                | integer     | Primary key, auto-increment (`identity`) | Unique identifier for each translation entry.                           |
-| `language`          | string(5)   | Indexed, part of unique constraint       | Configured language code (for example `en` or `cs`).                    |
-| `translation_key`   | string(255) | Indexed, part of unique constraint       | The lookup key used in the application (e.g., `"Save PDF"`, `"Back"`).  |
-| `translation_value` | text        |                                          | Localized string corresponding to the key in the given language.        |
+| Column              | Type        | Attributes                               | Description                                                            |
+| ------------------- | ----------- | ---------------------------------------- | ---------------------------------------------------------------------- |
+| `id`                | integer     | Primary key, auto-increment (`identity`) | Unique identifier for each translation entry.                          |
+| `language`          | string(5)   | Indexed, part of unique constraint       | Configured language code (for example `en` or `cs`).                   |
+| `translation_key`   | string(255) | Indexed, part of unique constraint       | The lookup key used in the application (e.g., `"Save PDF"`, `"Back"`). |
+| `translation_value` | text        |                                          | Localized string corresponding to the key in the given language.       |
 
 ## Integration
 
@@ -118,6 +118,7 @@ To create the expected database table structure (for dictionary and localised it
 
 - Because typically `.htaccess` uses `RedirectMatch 404 vendor\/(?!seablast\/)` to make vendor folder off limits for web access except the seablast library, the jquery.uls is in [Seablast for PHP](https://github.com/WorkOfStan/seablast) since v0.2.11 and not in this module.
 - However, it's useful to know that to make the SVG icon in `.uls-trigger` adopt the `font-color` of the surrounding element, the following style was added into `uls/images/language.svg`: `fill="currentColor"`. Also `uls/css/jquery.uls.css` was changed (changed: `.uls-trigger`, added: `.uls-trigger icon` and `.uls-trigger .icon svg`).
+- The selector uses `I18nConstant::LANGUAGE_LIST` as both the allowed ULS language set and its `quickList`; language labels come from ULS data instead of hardcoded labels in this library.
 - Language is lazy-initialised in SeablastView: `$translator = new $translatorClass($this->model->getConfiguration());` instantiates SeablastTranslate, which calls `$lang = new ApiLanguageModel($this->configuration, new \Seablast\Seablast\Superglobals());`. There `$this->configuration->setString('SB:LANGUAGE', $result);` is set.
 - `'/api/language'` using `'model' => '\Seablast\I18n\Models\ApiLanguageModel'` is called from window.languageSelector when uls.onSelect with parameter.
 
