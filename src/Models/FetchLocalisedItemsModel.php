@@ -66,7 +66,7 @@ class FetchLocalisedItemsModel implements SeablastModelInterface
             // No item available. Either no item at all, or the particular itemId.
             return (object) [
                     'httpCode' => 404,
-                    'message' => 'No items.',
+                    'message' => 'No items.', // todo localise
                     'title' => "{$this->titlePrefix}Chyba"
             ];
         }

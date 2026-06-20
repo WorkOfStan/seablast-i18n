@@ -49,6 +49,7 @@ class ApiLanguageModel extends GenericRestApiJsonModel
             // otherwise login by email fails
             $superglobals->server['REQUEST_METHOD'] = 'POST';
         }
+        // Valid JSON input must go through the parent constructor to populate $this->data and run CSRF validation.
         parent::__construct($this->configuration, $superglobals);
     }
 

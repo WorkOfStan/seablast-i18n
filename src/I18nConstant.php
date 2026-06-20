@@ -12,15 +12,15 @@ namespace Seablast\I18n;
 class I18nConstant
 {
     /**
-     * @var string Feature flag controlling whether bundled language selector templates render.
+     * @var string flag: Feature flag controlling whether bundled language selector templates render.
      */
     public const FLAG_SHOW_LANGUAGE_SELECTOR = 'I18n:SHOW_LANGUAGE_SELECTOR';
     /**
-     * @var string Current language key, reserved in Seablast\Seablast.
+     * @var string string: Current language key, reserved in Seablast\Seablast.
      */
     public const LANGUAGE = 'SB:LANGUAGE';
     /**
-     * @var string Configuration key for supported language codes (`string[]`).
+     * @var string string[]: Configuration key for supported language codes (`string[]`).
      */
     public const LANGUAGE_LIST = 'I18nSB:LANGUAGE_LIST';
 }

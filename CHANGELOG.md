@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### `Changed` for changes in existing functionality
 
 - Clarified readme and code comments so language handling, selector gating, and cookie behavior match the implementation.
+- Clarified why the language API delegates valid JSON requests to the parent JSON model.
 - Shortened i18n internals by removing debug-only code, avoiding repeated empty translation-table loads, and simplifying language selector initialization.
 - Restored the language selector limit so ULS shows only configured languages while still using ULS data for labels.
 
