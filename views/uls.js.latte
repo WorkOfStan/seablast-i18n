@@ -4,6 +4,7 @@
     <script src="{$configuration->getString('SB_APP_ROOT_ABSOLUTE_URL')}/vendor/seablast/seablast/assets/uls/src/jquery.uls.lcd.js?v={$configuration->getInt('SB_WEB_FORCE_ASSET_VERSION')}"></script>
     <script src="{$configuration->getString('SB_APP_ROOT_ABSOLUTE_URL')}/vendor/seablast/seablast/assets/uls/src/jquery.uls.languagefilter.js?v={$configuration->getInt('SB_WEB_FORCE_ASSET_VERSION')}"></script>
     <script src="{$configuration->getString('SB_APP_ROOT_ABSOLUTE_URL')}/vendor/seablast/seablast/assets/uls/src/jquery.uls.core.js?v={$configuration->getInt('SB_WEB_FORCE_ASSET_VERSION')}"></script>
+    <script>window.sbI18nLanguageList = {$configuration->getArrayString('I18nSB:LANGUAGE_LIST')};</script>
     <script n:syntax=off type="module">
 (async () => {
   const {ErrorLogger} = await import(`${API_BASE}/vendor/seablast/seablast/assets/scripts/seablast.js`);
@@ -23,16 +24,13 @@
      * Selects a new UI language.
      * Returns a jQuery Promise that resolves when the selection is fully applied.
      *
-     * @param {string} language — language code, e.g. 'en', 'cs'
+     * @param {string} language - configured language code, e.g. 'en', 'cs'
      * @returns {jQuery.Promise}
      */
     window.languageSelector = function (language) {
-      console.log("languageSelector", language);
-      var dfd = $.Deferred();
-
-      // If the language selector feature flag is not enabled, reject immediately. {* Language switching endpoint exists, but the UI selector is gated by `I18n:SHOW_LANGUAGE_SELECTOR` to prevent exposing unfinished/tenant-specific i18n. *}
+      // Language switching is available through the API, but this UI helper is feature-gated.
       if (env.flags.indexOf("I18n:SHOW_LANGUAGE_SELECTOR") === -1) {
-        console.error("Note: UI language flag not enabled");
+        const dfd = $.Deferred();
         return dfd.reject(new Error("UI language flag not enabled")).promise();
       }
 
@@ -50,42 +48,38 @@
         }),
       };
 
-      $.ajax(ajaxOptions)
-              .done((res) => {
-                console.log("LANG REQUESTED", res);
-                dfd.resolve(res);
-              })
-              .fail((xhr, status, err) => {
-                console.error("Language error", status, err);
+      return $.ajax(ajaxOptions)
+              .fail(() => {
                 errorLogger.log("/api/language error", "error");
-                dfd.reject(err);
               });
-      return dfd.promise();
     };
-    // dispatch the event after window.languageSelector ready
-    document.dispatchEvent(new CustomEvent("sbI18nLanguageSelectorReady"));
-  });
-})();
-    </script>
-    <script>
-$(document).on('sbI18nLanguageSelectorReady', function () {
-  console.log('>>> sbI18nLanguageSelectorReady: Now we can initialize ULS and call languageSelector without any worries.');
-  $(function () {
+
+    const quickList = window.sbI18nLanguageList;
+    const languages = {};
+
+    quickList.forEach(function (code) {
+      languages[code] = $.uls.data.getAutonym(code) || code;
+    });
+
     $('.uls-trigger').uls({
       onSelect: function (language) {
-        $.when(window.languageSelector(language))
+        window.languageSelector(language)
                 .done(function () {
                   location.reload();
                 })
                 .fail(function () {
-                  console.error('languageSelector failed for', language);
+                  errorLogger.log("languageSelector failed", "error");
                 });
       },
-      quickList: {$configuration->getArrayString('I18nSB:LANGUAGE_LIST')},
-      languages: {'cs': 'čeština', 'en': 'English'} {* Note: only the languages in quickList will be displayed *}
-      //quickList: [ 'en', 'hi', 'he', 'ml', 'ta', 'fr' ]
+      languages,
+      quickList,
+      // Only configured languages are shown; labels come from ULS data.
+      // quickList: [ 'en', 'hi', 'he', 'ml', 'ta', 'fr' ]
     });
+
+    // Dispatch the event after window.languageSelector is ready and ULS is initialized.
+    document.dispatchEvent(new CustomEvent("sbI18nLanguageSelectorReady"));
   });
-});
+})();
     </script>
 {/if}

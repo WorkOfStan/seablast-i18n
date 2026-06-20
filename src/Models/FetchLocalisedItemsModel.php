@@ -10,10 +10,11 @@ use Seablast\Seablast\SeablastConfiguration;
 use Seablast\Seablast\SeablastModelInterface;
 use Seablast\Seablast\Superglobals;
 use stdClass;
-use Tracy\Debugger;
 
 /**
- * Retrieve items from database
+ * Retrieve active localised items from the database.
+ *
+ * TODO: consider POST (update) and DELETE methods. Or leave that to administration?
  */
 class FetchLocalisedItemsModel implements SeablastModelInterface
 {
@@ -25,30 +26,26 @@ class FetchLocalisedItemsModel implements SeablastModelInterface
     private $itemId;
     /** @var int itemTypeId set in the child class */
     protected $itemTypeId;
-    /** @var Superglobals */
-    private $superglobals;
     /** @var string page title beginning set in the child class */
     protected $titlePrefix = "";
-    /** @var string page title ending set in the child class*/
+    /** @var string page title ending set in the child class */
     protected $titleSuffix = "";
 
     /**
      * @param SeablastConfiguration $configuration
      * @param Superglobals $superglobals
-     * @throw \Exception if unimplemented HTTP method call
+     * @throws \Exception if an unsupported HTTP method is used
      */
     public function __construct(SeablastConfiguration $configuration, Superglobals $superglobals)
     {
         $this->configuration = $configuration;
-        $this->superglobals = $superglobals;
-        if ($this->superglobals->server['REQUEST_METHOD'] === 'GET') {
-            $this->itemId = (isset($this->superglobals->get['id']) && is_numeric($this->superglobals->get['id'])) ?
-                (int) $this->superglobals->get['id'] : null;
-        } else {
+        if (($superglobals->server['REQUEST_METHOD'] ?? '') !== 'GET') {
             throw new \Exception(
-                'Wrong HTTP method request: ' . (string) print_r($this->superglobals->server['REQUEST_METHOD'], true)
+                'Wrong HTTP method request: ' . (string) print_r($superglobals->server['REQUEST_METHOD'] ?? '', true)
             );
         }
+        $this->itemId = (isset($superglobals->get['id']) && is_numeric($superglobals->get['id'])) ?
+            (int) $superglobals->get['id'] : null;
     }
 
     /**
@@ -59,7 +56,7 @@ class FetchLocalisedItemsModel implements SeablastModelInterface
     public function knowledge(): stdClass
     {
         $translate = new SeablastTranslate($this->configuration);
-        $language = $translate->getLanguage(); // ISO 639-1 = 2-letter language code
+        $language = $translate->getLanguage(); // configured language code
         // get Generator
         $itemsGen = $this->fetchItems($language, $this->itemTypeId, $this->itemId);
         // move to the first yield - which run the code till the first `yield`
@@ -69,7 +66,7 @@ class FetchLocalisedItemsModel implements SeablastModelInterface
             // No item available. Either no item at all, or the particular itemId.
             return (object) [
                     'httpCode' => 404,
-                    'message' => 'Žádné příspěvky.',
+                    'message' => 'No items.', // todo localise
                     'title' => "{$this->titlePrefix}Chyba"
             ];
         }
@@ -87,7 +84,7 @@ class FetchLocalisedItemsModel implements SeablastModelInterface
     /**
      * Yield items one by one from the database.
      *
-     * @param  string        $language   ISO 639-1 language code
+     * @param  string        $language   Configured language code
      * @param  int           $itemTypeId Item type identifier
      * @param  int|null      $itemId     Specific blog item_id, or null for all
      * @return \Generator<int,array<string,mixed>>  Generator yielding each row as an associative array
@@ -95,34 +92,23 @@ class FetchLocalisedItemsModel implements SeablastModelInterface
      */
     private function fetchItems(string $language, int $itemTypeId, ?int $itemId = null): \Generator
     {
-        Debugger::barDump(
-            ['language' => $language, 'itemTypeId' => $itemTypeId, 'itemId' => $itemId],
-            'fetchItems arguments'
-        );
-
-        if (is_null($itemId)) {
-            // Fetch all active items of this type and language, newest first
-            $sql = "
-                SELECT 
-                    item_id, language, parent_id, title, 
-                    LEFT(content, 100) AS content, friendly_url, 
-                    item_type_id, active, created_at, updated_at
-                FROM `{$this->configuration->dbmsTablePrefix()}localised_items`
-                WHERE language = ? AND item_type_id = ? AND active = 1
-                ORDER BY created_at DESC;
-            ";
-            $stmt = $this->configuration->mysqli()->prepareStrict($sql);
+        $isList = is_null($itemId);
+        $select = $isList
+            ? 'item_id, language, parent_id, title, LEFT(content, 100) AS content, friendly_url, ' .
+                'item_type_id, active, created_at, updated_at'
+            : 'id, item_id, language, parent_id, title, content, friendly_url, item_type_id, active, ' .
+                'created_at, updated_at';
+        $where = $isList ? 'language = ?' : 'item_id = ? AND language = ?';
+        $order = $isList ? ' ORDER BY created_at DESC' : '';
+        $sql = "
+            SELECT {$select}
+            FROM `{$this->configuration->dbmsTablePrefix()}localised_items`
+            WHERE {$where} AND item_type_id = ? AND active = 1{$order};
+        ";
+        $stmt = $this->configuration->mysqli()->prepareStrict($sql);
+        if ($isList) {
             $stmt->bind_param('si', $language, $itemTypeId);
         } else {
-            // Fetch single active item by its ID and language
-            $sql = "
-                SELECT 
-                    id, item_id, language, parent_id, title, content,
-                    friendly_url, item_type_id, active, created_at, updated_at
-                FROM `{$this->configuration->dbmsTablePrefix()}localised_items`
-                WHERE item_id = ? AND language = ? AND item_type_id = ? AND active = 1;
-            ";
-            $stmt = $this->configuration->mysqli()->prepareStrict($sql);
             $stmt->bind_param('isi', $itemId, $language, $itemTypeId);
         }
 
@@ -134,7 +120,6 @@ class FetchLocalisedItemsModel implements SeablastModelInterface
 
         // Yield each row; if there are none, this generator simply ends without yielding.
         while ($row = $result->fetch_assoc()) {
-            //Debugger::barDump($row, 'yielded row');
             yield $row;
         }
 
