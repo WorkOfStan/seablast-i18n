@@ -4,6 +4,7 @@
     <script src="{$configuration->getString('SB_APP_ROOT_ABSOLUTE_URL')}/vendor/seablast/seablast/assets/uls/src/jquery.uls.lcd.js?v={$configuration->getInt('SB_WEB_FORCE_ASSET_VERSION')}"></script>
     <script src="{$configuration->getString('SB_APP_ROOT_ABSOLUTE_URL')}/vendor/seablast/seablast/assets/uls/src/jquery.uls.languagefilter.js?v={$configuration->getInt('SB_WEB_FORCE_ASSET_VERSION')}"></script>
     <script src="{$configuration->getString('SB_APP_ROOT_ABSOLUTE_URL')}/vendor/seablast/seablast/assets/uls/src/jquery.uls.core.js?v={$configuration->getInt('SB_WEB_FORCE_ASSET_VERSION')}"></script>
+    <script>window.sbI18nLanguageList = {$configuration->getArrayString('I18nSB:LANGUAGE_LIST')};</script>
     <script n:syntax=off type="module">
 (async () => {
   const {ErrorLogger} = await import(`${API_BASE}/vendor/seablast/seablast/assets/scripts/seablast.js`);
@@ -53,7 +54,7 @@
               });
     };
 
-    const quickList = {$configuration->getArrayString('I18nSB:LANGUAGE_LIST')};
+    const quickList = window.sbI18nLanguageList;
     const languages = {};
 
     quickList.forEach(function (code) {
