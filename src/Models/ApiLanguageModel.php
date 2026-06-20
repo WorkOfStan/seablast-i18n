@@ -29,6 +29,7 @@ class ApiLanguageModel extends GenericRestApiJsonModel
     public function __construct(SeablastConfiguration $configuration, Superglobals $superglobals)
     {
         $this->configuration = $configuration;
+        $this->superglobals = $superglobals;
         // Read JSON from standard input if not pre-prepared
         $jsonInput = $this->configuration->exists(SeablastConstant::JSON_INPUT) //
             ? $this->configuration->getString(SeablastConstant::JSON_INPUT) : file_get_contents('php://input');
@@ -127,8 +128,33 @@ class ApiLanguageModel extends GenericRestApiJsonModel
             time() + 30 * 24 * 60 * 60, // expire time: days * hours * minutes * seconds
             $this->configuration->getString(SeablastConstant::SB_SESSION_SET_COOKIE_PARAMS_PATH),
             '', // the default cookie host
-            true,
+            $this->isLanguageCookieSecure(),
             true
         );
+    }
+
+    private function isLanguageCookieSecure(): bool
+    {
+        if (Debugger::$productionMode === true) {
+            return true;
+        }
+        if (Debugger::$productionMode === false) {
+            return false;
+        }
+
+        $remoteAddress = $this->superglobals->server['REMOTE_ADDR'] ?? '';
+        if (!is_string($remoteAddress)) {
+            return true;
+        }
+
+        $developmentIpList = ['::1', '127.0.0.1'];
+        if ($this->configuration->exists(SeablastConstant::DEBUG_IP_LIST)) {
+            $developmentIpList = array_merge(
+                $developmentIpList,
+                $this->configuration->getArrayString(SeablastConstant::DEBUG_IP_LIST)
+            );
+        }
+
+        return !in_array($remoteAddress, $developmentIpList, true);
     }
 }

@@ -28,6 +28,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### `Fixed` for any bugfixes
 
+- Make the language cookie secure in production while allowing insecure cookies only in Seablast development mode.
+
 ### `Security` in case of vulnerabilities
 
 ## [0.1.3] - 2026-01-25
