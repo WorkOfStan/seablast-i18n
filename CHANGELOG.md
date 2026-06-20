@@ -9,28 +9,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### `Added` for new features
 
-- Added `AGENTS.md` with library integration and maintenance notes for agents.
-- Added focused PHPUnit tests for language selection defaults and explicit-language validation.
-
 ### `Changed` for changes in existing functionality
-
-- Clarified readme and code comments so language handling, selector gating, and cookie behavior match the implementation.
-- Clarified why the language API delegates valid JSON requests to the parent JSON model.
-- Shortened i18n internals by removing debug-only code, avoiding repeated empty translation-table loads, and simplifying language selector initialization.
-- Restored the language selector limit so ULS shows only configured languages while still using ULS data for labels.
-- Use the configured language list for the ULS quick list.
 
 ### `Deprecated` for soon-to-be removed features
 
 ### `Removed` for now removed features
 
-- Removed the `.htaccess` directory-listing protection (`Options -Indexes`); host projects should configure this themselves.
-
 ### `Fixed` for any bugfixes
 
-- Make the language cookie secure in production while allowing insecure cookies only in Seablast development mode.
-
 ### `Security` in case of vulnerabilities
+
+## [0.1.4] - 2026-06-20
+
+feat: use the configured language list for the ULS quick list
+
+### Added
+
+- Add `AGENTS.md` with library integration and maintenance notes for agents.
+- Add focused PHPUnit tests for language selection defaults and explicit-language validation.
+
+### Changed
+
+- Clarify readme and code comments so language handling, selector gating, and cookie behavior match the implementation.
+- Clarify why the language API delegates valid JSON requests to the parent JSON model.
+- Shorten i18n internals by removing debug-only code, avoiding repeated empty translation-table loads, and simplifying language selector initialization.
+- Restore the language selector limit so ULS shows only configured languages while still using ULS data for labels.
+- Use the configured language list for the ULS quick list.
+
+### Removed
+
+- Remove the `.htaccess` directory-listing protection (`Options -Indexes`); host projects should configure this themselves.
+
+### Fixed
+
+- Make the language cookie secure in production while allowing insecure cookies only in Seablast development mode.
 
 ## [0.1.3] - 2026-01-25
 
@@ -77,7 +89,8 @@ feat: library to handle language switching and localisation of selected strings
 - package limited to the tested PHP versions, i.e. "php": ">=7.2 <8.5"
 - API `'/api/language'` using `'model' => '\Seablast\I18n\Models\ApiLanguageModel'` returns the selected language or it receives language to be set in the cookie 'sbLanguage'.
 
-[Unreleased]: https://github.com/WorkOfStan/seablast-i18n/compare/v0.1.3...HEAD
+[Unreleased]: https://github.com/WorkOfStan/seablast-i18n/compare/v0.1.4...HEAD
+[0.1.4]: https://github.com/WorkOfStan/seablast-i18n/compare/v0.1.3...v0.1.4
 [0.1.3]: https://github.com/WorkOfStan/seablast-i18n/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/WorkOfStan/seablast-i18n/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/WorkOfStan/seablast-i18n/compare/v0.1...v0.1.1

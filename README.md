@@ -1,5 +1,7 @@
 # `Seablast I18n`
 
+[![Total Downloads](https://img.shields.io/packagist/dt/seablast/i18n.svg)](https://packagist.org/packages/seablast/i18n)
+[![Latest Stable Version](https://img.shields.io/packagist/v/seablast/i18n.svg)](https://packagist.org/packages/seablast/i18n)
 [![Polish the code](https://github.com/WorkOfStan/seablast-i18n/actions/workflows/polish-the-code.yml/badge.svg)](https://github.com/WorkOfStan/seablast-i18n/actions/workflows/polish-the-code.yml)
 
 A lightweight internationalization (i18n) module for apps using the [Seablast for PHP](https://github.com/WorkOfStan/seablast) framework. It provides a Latte translation filter, a language-selection API, optional Universal Language Selector templates, and Phinx migrations for translation data. Installable via Composer, it integrates seamlessly and activates only when needed, allowing you to effortlessly provide multilingual support and manage user language preferences.
