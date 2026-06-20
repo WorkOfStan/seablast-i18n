@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Seablast\I18n\Models;
 
+require_once __DIR__ . '/ApiLanguageModelSetCookieSpy.php';
+
 function setcookie(
     string $name,
     string $value = '',
@@ -13,7 +15,7 @@ function setcookie(
     bool $secure = false,
     bool $httponly = false
 ): bool {
-    ApiLanguageModelSetCookieSpy::$calls[] = [
+    \Seablast\I18n\Tests\Models\ApiLanguageModelSetCookieSpy::$calls[] = [
         'name' => $name,
         'value' => $value,
         'expires' => $expires,
@@ -23,22 +25,7 @@ function setcookie(
         'httponly' => $httponly,
     ];
 
-    return ApiLanguageModelSetCookieSpy::$returnValue;
-}
-
-final class ApiLanguageModelSetCookieSpy
-{
-    /** @var array<int, array<string, mixed>> */
-    public static $calls = [];
-
-    /** @var bool */
-    public static $returnValue = true;
-
-    public static function reset(): void
-    {
-        self::$calls = [];
-        self::$returnValue = true;
-    }
+    return \Seablast\I18n\Tests\Models\ApiLanguageModelSetCookieSpy::$returnValue;
 }
 
 namespace Seablast\I18n\Tests\Models;
@@ -46,7 +33,6 @@ namespace Seablast\I18n\Tests\Models;
 use PHPUnit\Framework\TestCase;
 use Seablast\I18n\I18nConstant;
 use Seablast\I18n\Models\ApiLanguageModel;
-use Seablast\I18n\Models\ApiLanguageModelSetCookieSpy;
 use Seablast\Seablast\SeablastConfiguration;
 use Seablast\Seablast\SeablastConstant;
 use Seablast\Seablast\Superglobals;
@@ -114,7 +100,9 @@ final class ApiLanguageModelTest extends TestCase
     public function testLanguageCookieIsNotSecureInTracyDevelopmentMode(): void
     {
         Debugger::$productionMode = Debugger::DEVELOPMENT;
-        $model = new ApiLanguageModel($this->configuration(), new Superglobals([], [], ['REMOTE_ADDR' => '203.0.113.10']));
+        $model = new ApiLanguageModel(
+            $this->configuration(), new Superglobals([], [], ['REMOTE_ADDR' => '203.0.113.10'])
+        );
 
         $this->setLanguageCookie($model, 'cs');
 
@@ -142,7 +130,9 @@ final class ApiLanguageModelTest extends TestCase
 
     public function testLanguageCookieFallbackKeepsSecureForNonDevelopmentIp(): void
     {
-        $model = new ApiLanguageModel($this->configuration(), new Superglobals([], [], ['REMOTE_ADDR' => '203.0.113.10']));
+        $model = new ApiLanguageModel(
+            $this->configuration(), new Superglobals([], [], ['REMOTE_ADDR' => '203.0.113.10'])
+        );
 
         $this->setLanguageCookie($model, 'cs');
 
