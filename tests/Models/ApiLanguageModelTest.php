@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace Seablast\I18n\Models;
 
 function setcookie(
-    $name,
-    $value = '',
-    $expires = 0,
-    $path = '',
-    $domain = '',
-    $secure = false,
-    $httponly = false
+    string $name,
+    string $value = '',
+    int $expires = 0,
+    string $path = '',
+    string $domain = '',
+    bool $secure = false,
+    bool $httponly = false
 ): bool {
     ApiLanguageModelSetCookieSpy::$calls[] = [
         'name' => $name,
@@ -57,22 +57,22 @@ final class ApiLanguageModelTest extends TestCase
 {
     /** @var array<mixed> */
     private $cookies = [];
-    /** @var bool|null */
+    /** @var mixed */
     private $productionMode;
 
     protected function setUp(): void
     {
         $this->cookies = $_COOKIE;
         $_COOKIE = [];
-        $this->productionMode = Debugger::$productionMode;
-        Debugger::$productionMode = null;
+        $this->productionMode = self::getTracyProductionMode();
+        self::setTracyProductionMode(Debugger::DETECT);
         ApiLanguageModelSetCookieSpy::reset();
     }
 
     protected function tearDown(): void
     {
         $_COOKIE = $this->cookies;
-        Debugger::$productionMode = $this->productionMode;
+        self::setTracyProductionMode($this->productionMode);
         ApiLanguageModelSetCookieSpy::reset();
     }
 
@@ -164,6 +164,22 @@ final class ApiLanguageModelTest extends TestCase
         $method->setAccessible(true);
 
         self::assertTrue($method->invoke($model, $language));
+    }
+
+    /**
+     * @return mixed
+     */
+    private static function getTracyProductionMode()
+    {
+        return (new \ReflectionProperty(Debugger::class, 'productionMode'))->getValue();
+    }
+
+    /**
+     * @param mixed $productionMode
+     */
+    private static function setTracyProductionMode($productionMode): void
+    {
+        (new \ReflectionProperty(Debugger::class, 'productionMode'))->setValue(null, $productionMode);
     }
 
     private function configuration(): SeablastConfiguration

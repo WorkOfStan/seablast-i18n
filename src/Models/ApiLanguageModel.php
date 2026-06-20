@@ -135,10 +135,12 @@ class ApiLanguageModel extends GenericRestApiJsonModel
 
     private function isLanguageCookieSecure(): bool
     {
-        if (Debugger::$productionMode === true) {
+        // Tracy 2.x documents the property as bool, but uses null before Debugger::enable() resolves auto-detect mode.
+        $productionMode = (new \ReflectionProperty(Debugger::class, 'productionMode'))->getValue();
+        if ($productionMode === true) {
             return true;
         }
-        if (Debugger::$productionMode === false) {
+        if ($productionMode === false) {
             return false;
         }
 

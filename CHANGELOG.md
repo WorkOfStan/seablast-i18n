@@ -29,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### `Fixed` for any bugfixes
 
 - Make the language cookie secure in production while allowing insecure cookies only in Seablast development mode.
+- Fix PHPStan parameter type warnings for the API language model cookie test double.
 
 ### `Security` in case of vulnerabilities
 
