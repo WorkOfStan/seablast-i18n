@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Seablast\I18n\Models;
 
-require_once __DIR__ . '/ApiLanguageModelSetCookieSpy.php';
-
 function setcookie(
     string $name,
     string $value = '',
