@@ -101,7 +101,8 @@ final class ApiLanguageModelTest extends TestCase
     {
         Debugger::$productionMode = Debugger::DEVELOPMENT;
         $model = new ApiLanguageModel(
-            $this->configuration(), new Superglobals([], [], ['REMOTE_ADDR' => '203.0.113.10'])
+            $this->configuration(),
+            new Superglobals([], [], ['REMOTE_ADDR' => '203.0.113.10'])
         );
 
         $this->setLanguageCookie($model, 'cs');
@@ -131,7 +132,8 @@ final class ApiLanguageModelTest extends TestCase
     public function testLanguageCookieFallbackKeepsSecureForNonDevelopmentIp(): void
     {
         $model = new ApiLanguageModel(
-            $this->configuration(), new Superglobals([], [], ['REMOTE_ADDR' => '203.0.113.10'])
+            $this->configuration(),
+            new Superglobals([], [], ['REMOTE_ADDR' => '203.0.113.10'])
         );
 
         $this->setLanguageCookie($model, 'cs');
