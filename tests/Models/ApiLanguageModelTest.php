@@ -7,13 +7,13 @@ namespace Seablast\I18n\Models;
 function setcookie(
     string $name,
     string $value = '',
-    int $expires = 0,
+    $expires = 0,
     string $path = '',
     string $domain = '',
     bool $secure = false,
     bool $httponly = false
 ): bool {
-    \Seablast\I18n\Tests\Models\ApiLanguageModelSetCookieSpy::$calls[] = [
+    $call = [
         'name' => $name,
         'value' => $value,
         'expires' => $expires,
@@ -22,6 +22,19 @@ function setcookie(
         'secure' => $secure,
         'httponly' => $httponly,
     ];
+
+    if (is_array($expires)) {
+        $call['expires'] = $expires['expires'] ?? 0;
+        $call['path'] = $expires['path'] ?? '';
+        $call['domain'] = $expires['domain'] ?? '';
+        $call['secure'] = $expires['secure'] ?? false;
+        $call['httponly'] = $expires['httponly'] ?? false;
+        if (array_key_exists('samesite', $expires)) {
+            $call['samesite'] = $expires['samesite'];
+        }
+    }
+
+    \Seablast\I18n\Tests\Models\ApiLanguageModelSetCookieSpy::$calls[] = $call;
 
     return \Seablast\I18n\Tests\Models\ApiLanguageModelSetCookieSpy::$returnValue;
 }
@@ -137,6 +150,36 @@ final class ApiLanguageModelTest extends TestCase
         $this->setLanguageCookie($model, 'cs');
 
         self::assertTrue(ApiLanguageModelSetCookieSpy::$calls[0]['secure']);
+    }
+
+    public function testLanguageCookieUsesHttpOnlyAndSameSite(): void
+    {
+        Debugger::$productionMode = Debugger::PRODUCTION;
+        $model = new ApiLanguageModel($this->configuration(), new Superglobals([], [], ['REMOTE_ADDR' => '127.0.0.1']));
+
+        $this->setLanguageCookie($model, 'cs');
+
+        $cookie = ApiLanguageModelSetCookieSpy::$calls[0];
+        self::assertTrue($cookie['httponly']);
+        if (PHP_VERSION_ID >= 70300) {
+            self::assertSame('/', $cookie['path']);
+            self::assertSame('Lax', $cookie['samesite']);
+        } else {
+            self::assertSame('/; SameSite=Lax', $cookie['path']);
+        }
+    }
+
+    public function testLanguageCookieRejectsUnsafePath(): void
+    {
+        Debugger::$productionMode = Debugger::PRODUCTION;
+        $configuration = $this->configuration()
+            ->setString(SeablastConstant::SB_SESSION_SET_COOKIE_PARAMS_PATH, '/; Secure');
+        $model = new ApiLanguageModel($configuration, new Superglobals([], [], ['REMOTE_ADDR' => '127.0.0.1']));
+        $method = new \ReflectionMethod(ApiLanguageModel::class, 'setLanguageCookie');
+        $method->setAccessible(true);
+
+        $this->expectException(\InvalidArgumentException::class);
+        $method->invoke($model, 'cs');
     }
 
     private function assertLanguageResponse(stdClass $knowledge, string $language): void
