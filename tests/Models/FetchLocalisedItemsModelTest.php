@@ -50,13 +50,3 @@ final class FetchLocalisedItemsModelTest extends TestCase
         self::assertSame('Invalid item id.', $knowledge->message);
     }
 }
-
-final class FetchLocalisedItemsModelForTest extends FetchLocalisedItemsModel
-{
-    public function __construct(SeablastConfiguration $configuration, Superglobals $superglobals)
-    {
-        $this->itemTypeId = 1;
-
-        parent::__construct($configuration, $superglobals);
-    }
-}

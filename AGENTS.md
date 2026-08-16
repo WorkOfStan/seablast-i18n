@@ -18,6 +18,12 @@
 - Include `views/uls.css.latte`, `views/uls.menu.latte`, and `views/uls.js.latte` from the app layout when the bundled selector should be available.
 - Host applications own web-server hardening such as directory-listing protection and vendor access rules.
 
+## Security Invariants
+
+- Keep the `sbLanguage` cookie `HttpOnly` with `SameSite=Lax`, validate its configured path before creating the header, and preserve both the PHP 7.3+ options-array call and the guarded PHP 7.2 fallback.
+- In `views/uls.js.latte`, leave the configured language-list expression subject to Latte's contextual JavaScript escaping. Do not add `|json`: that filter is unavailable in supported Latte 2 releases and causes rendering to fail.
+- Accept localised item IDs only as canonical positive decimal values from `1` through `2147483647`. Malformed IDs must return `400` before translator initialization or database access.
+
 ## Development Notes
 
 - Keep changes focused and update `CHANGELOG.md` in English for user-visible changes.
