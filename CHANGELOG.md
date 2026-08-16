@@ -20,7 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### `Security` in case of vulnerabilities
 
 - Harden the language preference cookie with SameSite protection and cookie-path validation.
-- Encode the configured language list as JSON before exposing it to the ULS JavaScript template.
+- Preserve safe ULS language-list serialization through Latte's contextual JavaScript escaping.
 - Reject malformed localised item IDs before database access.
 
 ## [0.1.4] - 2026-06-20

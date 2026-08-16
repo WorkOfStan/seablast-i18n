@@ -4,6 +4,16 @@ declare(strict_types=1);
 
 namespace Seablast\I18n\Models;
 
+/**
+ * @param int|array{
+ *     expires?: int,
+ *     path?: string,
+ *     domain?: string,
+ *     secure?: bool,
+ *     httponly?: bool,
+ *     samesite?: string
+ * } $expires
+ */
 function setcookie(
     string $name,
     string $value = '',
