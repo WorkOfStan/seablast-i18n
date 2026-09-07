@@ -21,7 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.1.5] - 2026-09-07
 
-feat: add cookie-path validation and SameSite protection
+feat!: add cookie-path validation and SameSite protection
 
 ### Added
 
@@ -30,6 +30,11 @@ feat: add cookie-path validation and SameSite protection
 ### Changed
 
 - add `"webmozart/assert": "... || ^2.1.5"` to align with Seablast
+
+### Fixed
+
+- fix!: enforce explicit NOT NULL constraints, including localised item languages, and scope localised item uniqueness by type.
+  BREAKING CHANGE: Repair existing NULL values in required columns manually before migrating. Localised items now require a language. Nullability rollback is unsupported; index rollback requires resolving duplicate item ID/language pairs across types first.
 
 ### Security
 
