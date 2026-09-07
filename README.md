@@ -117,6 +117,8 @@ To create the expected database table structure (for dictionary and localised it
 
 - API `'/api/language'` using `'model' => '\Seablast\I18n\Models\ApiLanguageModel'` returns the selected language or accepts a language to store in the cookie 'sbLanguage'.
 - The cookie 'sbLanguage' is created after a successful language-selection request.
+- The `sbLanguage` cookie is always `HttpOnly` with `SameSite=Lax`; it is `Secure` according to Seablast's existing production/development detection.
+- An empty `SB_SESSION_SET_COOKIE_PARAMS_PATH` uses `/`. A non-empty cookie path must begin with `/` and must not contain control or whitespace characters, commas, or semicolons.
 
 ### Language selector
 

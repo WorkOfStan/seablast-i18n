@@ -20,6 +20,9 @@ class ApiLanguageModel extends GenericRestApiJsonModel
     use \Nette\SmartObject;
 
     private const COOKIE_LANGUAGE = 'sbLanguage';
+    // expire time: days * hours * minutes * seconds
+    private const COOKIE_LIFETIME_SECONDS = 30 * 24 * 60 * 60;
+    private const COOKIE_SAME_SITE = 'Lax';
 
     /**
      * @param SeablastConfiguration $configuration
@@ -122,15 +125,46 @@ class ApiLanguageModel extends GenericRestApiJsonModel
      */
     private function setLanguageCookie(string $language): bool
     {
+        $expires = time() + self::COOKIE_LIFETIME_SECONDS;
+        $path = $this->languageCookiePath();
+        $secure = $this->isLanguageCookieSecure();
+
+        if (PHP_VERSION_ID >= 70300) {
+            return setcookie(
+                self::COOKIE_LANGUAGE,
+                $language,
+                [
+                    'expires' => $expires,
+                    'path' => $path,
+                    'secure' => $secure,
+                    'httponly' => true,
+                    'samesite' => self::COOKIE_SAME_SITE,
+                ]
+            );
+        }
+
         return setcookie(
             self::COOKIE_LANGUAGE,
             $language,
-            time() + 30 * 24 * 60 * 60, // expire time: days * hours * minutes * seconds
-            $this->configuration->getString(SeablastConstant::SB_SESSION_SET_COOKIE_PARAMS_PATH),
+            $expires,
+            $path . '; SameSite=' . self::COOKIE_SAME_SITE,
             '', // the default cookie host
-            $this->isLanguageCookieSecure(),
+            $secure,
             true
         );
+    }
+
+    private function languageCookiePath(): string
+    {
+        $path = $this->configuration->getString(SeablastConstant::SB_SESSION_SET_COOKIE_PARAMS_PATH);
+        if ($path === '') {
+            return '/';
+        }
+        if ($path[0] !== '/' || preg_match('/[[:cntrl:]\s;,]/', $path) !== 0) {
+            throw new \InvalidArgumentException('Unsafe language cookie path.');
+        }
+
+        return $path;
     }
 
     private function isLanguageCookieSecure(): bool

@@ -20,8 +20,12 @@ class FetchLocalisedItemsModel implements SeablastModelInterface
 {
     use \Nette\SmartObject;
 
+    private const MAX_ITEM_ID = 2147483647;
+
     /** @var SeablastConfiguration */
     private $configuration;
+    /** @var bool */
+    private $invalidItemId = false;
     /** @var int|null itemId or null */
     private $itemId;
     /** @var int itemTypeId set in the child class */
@@ -44,8 +48,12 @@ class FetchLocalisedItemsModel implements SeablastModelInterface
                 'Wrong HTTP method request: ' . (string) print_r($superglobals->server['REQUEST_METHOD'] ?? '', true)
             );
         }
-        $this->itemId = (isset($superglobals->get['id']) && is_numeric($superglobals->get['id'])) ?
-            (int) $superglobals->get['id'] : null;
+        if (array_key_exists('id', $superglobals->get)) {
+            $this->itemId = $this->parseItemId($superglobals->get['id']);
+            $this->invalidItemId = $this->itemId === null;
+        } else {
+            $this->itemId = null;
+        }
     }
 
     /**
@@ -55,6 +63,14 @@ class FetchLocalisedItemsModel implements SeablastModelInterface
      */
     public function knowledge(): stdClass
     {
+        if ($this->invalidItemId) {
+            return (object) [
+                'httpCode' => 400,
+                'message' => 'Invalid item id.',
+                'title' => "{$this->titlePrefix}Chyba"
+            ];
+        }
+
         $translate = new SeablastTranslate($this->configuration);
         $language = $translate->getLanguage(); // configured language code
         // get Generator
@@ -79,6 +95,30 @@ class FetchLocalisedItemsModel implements SeablastModelInterface
             'itemId' => $this->itemId,
             'items' => $itemsGen,
         ];
+    }
+
+    /**
+     * @param mixed $itemId
+     * @return int|null
+     */
+    private function parseItemId($itemId): ?int
+    {
+        if (is_int($itemId)) {
+            return ($itemId >= 1 && $itemId <= self::MAX_ITEM_ID) ? $itemId : null;
+        }
+        if (!is_string($itemId) || preg_match('/\A[1-9][0-9]*\z/', $itemId) !== 1) {
+            return null;
+        }
+
+        $maxItemId = (string) self::MAX_ITEM_ID;
+        if (strlen($itemId) > strlen($maxItemId)) {
+            return null;
+        }
+        if (strlen($itemId) === strlen($maxItemId) && strcmp($itemId, $maxItemId) > 0) {
+            return null;
+        }
+
+        return (int) $itemId;
     }
 
     /**

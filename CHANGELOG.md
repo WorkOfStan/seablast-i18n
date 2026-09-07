@@ -19,6 +19,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### `Security` in case of vulnerabilities
 
+## [0.1.5] - 2026-09-07
+
+feat: add cookie-path validation and SameSite protection
+
+### Changed
+
+- add `"webmozart/assert": "... || ^2.1.5"` to align with Seablast
+
+### Security
+
+- Harden the language preference cookie with SameSite protection and cookie-path validation.
+- Preserve safe ULS language-list serialization through Latte's contextual JavaScript escaping.
+- Reject malformed localised item IDs before database access.
+
 ## [0.1.4] - 2026-06-20
 
 feat: use the configured language list for the ULS quick list
@@ -89,7 +103,8 @@ feat: library to handle language switching and localisation of selected strings
 - package limited to the tested PHP versions, i.e. "php": ">=7.2 <8.5"
 - API `'/api/language'` using `'model' => '\Seablast\I18n\Models\ApiLanguageModel'` returns the selected language or it receives language to be set in the cookie 'sbLanguage'.
 
-[Unreleased]: https://github.com/WorkOfStan/seablast-i18n/compare/v0.1.4...HEAD
+[Unreleased]: https://github.com/WorkOfStan/seablast-i18n/compare/v0.1.5...HEAD
+[0.1.5]: https://github.com/WorkOfStan/seablast-i18n/compare/v0.1.4...v0.1.5
 [0.1.4]: https://github.com/WorkOfStan/seablast-i18n/compare/v0.1.3...v0.1.4
 [0.1.3]: https://github.com/WorkOfStan/seablast-i18n/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/WorkOfStan/seablast-i18n/compare/v0.1.1...v0.1.2
