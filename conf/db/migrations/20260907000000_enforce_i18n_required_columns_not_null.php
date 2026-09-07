@@ -21,10 +21,12 @@ final class EnforceI18nRequiredColumnsNotNull extends AbstractMigration
         // Check every table before any DDL: MySQL schema changes cannot be rolled back reliably.
         foreach ($definitions as $tableName => $columns) {
             foreach (array_keys($columns) as $columnName) {
-                if ($this->fetchRow(
-                    'SELECT 1 FROM ' . $this->quotedTableName($tableName)
-                    . ' WHERE `' . $columnName . '` IS NULL LIMIT 1'
-                ) !== false) {
+                if (
+                    $this->fetchRow(
+                        'SELECT 1 FROM ' . $this->quotedTableName($tableName)
+                        . ' WHERE `' . $columnName . '` IS NULL LIMIT 1'
+                    ) !== false
+                ) {
                     $invalid[] = $tableName . '.' . $columnName;
                 }
             }

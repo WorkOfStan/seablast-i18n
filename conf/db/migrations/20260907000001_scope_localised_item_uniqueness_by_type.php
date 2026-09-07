@@ -25,10 +25,12 @@ final class ScopeLocalisedItemUniquenessByType extends AbstractMigration
             return;
         }
         // New data may reuse an ID and language across types; never remove its protection first.
-        if ($this->fetchRow(
-            'SELECT 1 FROM ' . $this->quotedTableName()
-            . ' GROUP BY item_id, language HAVING COUNT(*) > 1 LIMIT 1'
-        ) !== false) {
+        if (
+            $this->fetchRow(
+                'SELECT 1 FROM ' . $this->quotedTableName()
+                . ' GROUP BY item_id, language HAVING COUNT(*) > 1 LIMIT 1'
+            ) !== false
+        ) {
             throw new IrreversibleMigrationException(
                 'Cannot restore unique (item_id, language): duplicates exist across item types. '
                 . 'Resolve these conflicts manually before retrying rollback.'
