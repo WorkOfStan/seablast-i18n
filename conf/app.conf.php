@@ -37,7 +37,7 @@ return static function (SeablastConfiguration $SBConfig): void {
             [
                 'localised_items',
             ]
-        )        
+        )
         ->setArrayArrayString(
             SeablastConstant::ADMIN_TABLE_VIEW . SeablastConstant::USER_ROLE_EDITOR,
             'translations',
