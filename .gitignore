@@ -1,10 +1,10 @@
 #disable temporary and log files and dirs
 /log/*
 !/log/.htaccess
-.phpunit.result.cache
+.*.cache
 
 #disable private local files
-*.local.php
+*.local.*
 
 #disable composer-managed libraries
 /vendor/
