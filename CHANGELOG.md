@@ -23,6 +23,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 feat: add cookie-path validation and SameSite protection
 
+### Added
+
+- feat: add the default Administration of Seablast I18n tables
+
 ### Changed
 
 - add `"webmozart/assert": "... || ^2.1.5"` to align with Seablast
