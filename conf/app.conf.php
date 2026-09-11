@@ -54,7 +54,7 @@ return static function (SeablastConfiguration $SBConfig): void {
             [
                 'id',
                 //'parent_id',
-                //'created_at','updated_at'
+                'friendly_url',
             ]
         )
         ->setArrayArrayString(
@@ -64,7 +64,6 @@ return static function (SeablastConfiguration $SBConfig): void {
                 'item_id','language',
                 'item_type_id',
                 'active','title','content',
-                //'friendly_url',
             ]
         )
         ->setArrayArrayString(

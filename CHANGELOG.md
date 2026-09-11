@@ -19,13 +19,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### `Security` in case of vulnerabilities
 
-## [0.1.5] - 2026-09-07
+## [0.1.5] - 2026-09-13
 
 feat!: add cookie-path validation and SameSite protection
 
 ### Added
 
 - feat: add the default Administration of Seablast I18n tables
+- feat: show friendly_url field in the `localised_items` poseidon view
 
 ### Changed
 
