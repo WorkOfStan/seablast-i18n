@@ -17,6 +17,8 @@
 - Add `vendor/seablast/i18n/conf/db/migrations` to the app's Phinx migration paths when the dictionary or localised item tables are needed.
 - Include `views/uls.css.latte`, `views/uls.menu.latte`, and `views/uls.js.latte` from the app layout when the bundled selector should be available.
 - Host applications own web-server hardening such as directory-listing protection and vendor access rules.
+- Follow-up migrations require localised item languages and other required fields to be NOT NULL; only `parent_id`, `content` and `friendly_url` remain nullable. Repair existing NULL values manually before migration.
+- Localised item uniqueness is `(item_id, language, item_type_id)`. Nullability rollback is unsupported; index rollback refuses duplicate `(item_id, language)` pairs before changing the index. Pause application writes during migrations.
 
 ## Security Invariants
 

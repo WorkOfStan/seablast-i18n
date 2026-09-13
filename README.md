@@ -101,6 +101,25 @@ To create the expected database table structure (for dictionary and localised it
 
 ### Dictionary table: `translations`
 
+The follow-up migrations explicitly require non-NULL dictionary languages, keys and values;
+localised item IDs, languages, titles, types and active flags; and timestamps in both localised tables.
+Empty strings remain permitted. Only localised item `parent_id`, `content` and `friendly_url` remain nullable.
+Localised items are unique by `(item_id, language, item_type_id)`, allowing the same item ID and language in different types.
+
+Before deploying, back up the database and pause application writes while running migrations.
+If required columns contain NULL, the nullability migration reports the affected columns and stops before any schema change.
+Correct these values manually and retry; no language or other missing data is inferred.
+Other DDL failures can leave partial schema changes because MySQL DDL is not transactional.
+Nullability rollback is deliberately unsupported because the old defaults depended on the Phinx version.
+The index migration can be rolled back only when `(item_id, language)` has no duplicates across types;
+otherwise rollback stops before removing the new index.
+
+To run the MySQL migration regression test on Windows, use
+`$env:I18N_MIGRATION_TESTS = '1'; php vendor/bin/phpunit --do-not-cache-result`.
+It uses the `testing` connection credentials from `conf/phinx.local.php` (or `conf/phinx.dist.php`),
+creates a randomly named isolated database, and drops it afterwards. The database user needs
+CREATE/DROP DATABASE privileges. The test is skipped unless explicitly enabled.
+
 | Column              | Type        | Attributes                               | Description                                                            |
 | ------------------- | ----------- | ---------------------------------------- | ---------------------------------------------------------------------- |
 | `id`                | integer     | Primary key, auto-increment (`identity`) | Unique identifier for each translation entry.                          |
