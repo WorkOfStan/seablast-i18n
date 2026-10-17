@@ -67,6 +67,47 @@ final class ApiLanguageModelTest extends TestCase
     /** @var mixed */
     private $productionMode;
 
+    private function assertLanguageResponse(stdClass $knowledge, string $language): void
+    {
+        $rest = $knowledge->rest;
+
+        self::assertSame(200, $knowledge->httpCode);
+        self::assertInstanceOf(stdClass::class, $rest);
+        self::assertSame($language, $rest->message);
+    }
+
+    private function configuration(): SeablastConfiguration
+    {
+        return (new SeablastConfiguration())
+            ->setArrayString(I18nConstant::LANGUAGE_LIST, ['en', 'cs'])
+            ->setArrayString(SeablastConstant::DEBUG_IP_LIST, [])
+            ->setString(SeablastConstant::SB_SESSION_SET_COOKIE_PARAMS_PATH, '/');
+    }
+
+    /**
+     * @return mixed
+     */
+    private static function getTracyProductionMode()
+    {
+        return (new \ReflectionProperty(Debugger::class, 'productionMode'))->getValue();
+    }
+
+    private function setLanguageCookie(ApiLanguageModel $model, string $language): void
+    {
+        $method = new \ReflectionMethod(ApiLanguageModel::class, 'setLanguageCookie');
+        $method->setAccessible(true);
+
+        self::assertTrue($method->invoke($model, $language));
+    }
+
+    /**
+     * @param mixed $productionMode
+     */
+    private static function setTracyProductionMode($productionMode): void
+    {
+        (new \ReflectionProperty(Debugger::class, 'productionMode'))->setValue(null, $productionMode);
+    }
+
     protected function setUp(): void
     {
         $this->cookies = $_COOKIE;
@@ -81,6 +122,18 @@ final class ApiLanguageModelTest extends TestCase
         $_COOKIE = $this->cookies;
         self::setTracyProductionMode($this->productionMode);
         ApiLanguageModelSetCookieSpy::reset();
+    }
+
+    public function testKnowledgeIgnoresUnsupportedCookieLanguage(): void
+    {
+        $_COOKIE['sbLanguage'] = 'de';
+        $configuration = $this->configuration();
+        $model = new ApiLanguageModel($configuration, new Superglobals([], [], ['REQUEST_METHOD' => 'GET']));
+
+        $knowledge = $model->knowledge();
+
+        $this->assertLanguageResponse($knowledge, 'en');
+        self::assertSame('en', $configuration->getString(I18nConstant::LANGUAGE));
     }
 
     public function testKnowledgeReturnsDefaultLanguageWithoutJsonInput(): void
@@ -106,16 +159,25 @@ final class ApiLanguageModelTest extends TestCase
         self::assertSame('cs', $configuration->getString(I18nConstant::LANGUAGE));
     }
 
-    public function testKnowledgeIgnoresUnsupportedCookieLanguage(): void
+    public function testLanguageCookieFallbackAllowsInsecureDevelopmentIp(): void
     {
-        $_COOKIE['sbLanguage'] = 'de';
-        $configuration = $this->configuration();
-        $model = new ApiLanguageModel($configuration, new Superglobals([], [], ['REQUEST_METHOD' => 'GET']));
+        $model = new ApiLanguageModel($this->configuration(), new Superglobals([], [], ['REMOTE_ADDR' => '127.0.0.1']));
 
-        $knowledge = $model->knowledge();
+        $this->setLanguageCookie($model, 'cs');
 
-        $this->assertLanguageResponse($knowledge, 'en');
-        self::assertSame('en', $configuration->getString(I18nConstant::LANGUAGE));
+        self::assertFalse(ApiLanguageModelSetCookieSpy::$calls[0]['secure']);
+    }
+
+    public function testLanguageCookieFallbackKeepsSecureForNonDevelopmentIp(): void
+    {
+        $model = new ApiLanguageModel(
+            $this->configuration(),
+            new Superglobals([], [], ['REMOTE_ADDR' => '203.0.113.10'])
+        );
+
+        $this->setLanguageCookie($model, 'cs');
+
+        self::assertTrue(ApiLanguageModelSetCookieSpy::$calls[0]['secure']);
     }
 
     public function testLanguageCookieIsNotSecureInTracyDevelopmentMode(): void
@@ -141,25 +203,17 @@ final class ApiLanguageModelTest extends TestCase
         self::assertTrue(ApiLanguageModelSetCookieSpy::$calls[0]['secure']);
     }
 
-    public function testLanguageCookieFallbackAllowsInsecureDevelopmentIp(): void
+    public function testLanguageCookieRejectsUnsafePath(): void
     {
-        $model = new ApiLanguageModel($this->configuration(), new Superglobals([], [], ['REMOTE_ADDR' => '127.0.0.1']));
+        Debugger::$productionMode = Debugger::PRODUCTION;
+        $configuration = $this->configuration()
+            ->setString(SeablastConstant::SB_SESSION_SET_COOKIE_PARAMS_PATH, '/; Secure');
+        $model = new ApiLanguageModel($configuration, new Superglobals([], [], ['REMOTE_ADDR' => '127.0.0.1']));
+        $method = new \ReflectionMethod(ApiLanguageModel::class, 'setLanguageCookie');
+        $method->setAccessible(true);
 
-        $this->setLanguageCookie($model, 'cs');
-
-        self::assertFalse(ApiLanguageModelSetCookieSpy::$calls[0]['secure']);
-    }
-
-    public function testLanguageCookieFallbackKeepsSecureForNonDevelopmentIp(): void
-    {
-        $model = new ApiLanguageModel(
-            $this->configuration(),
-            new Superglobals([], [], ['REMOTE_ADDR' => '203.0.113.10'])
-        );
-
-        $this->setLanguageCookie($model, 'cs');
-
-        self::assertTrue(ApiLanguageModelSetCookieSpy::$calls[0]['secure']);
+        $this->expectException(\InvalidArgumentException::class);
+        $method->invoke($model, 'cs');
     }
 
     public function testLanguageCookieUsesHttpOnlyAndSameSite(): void
@@ -177,59 +231,5 @@ final class ApiLanguageModelTest extends TestCase
         } else {
             self::assertSame('/; SameSite=Lax', $cookie['path']);
         }
-    }
-
-    public function testLanguageCookieRejectsUnsafePath(): void
-    {
-        Debugger::$productionMode = Debugger::PRODUCTION;
-        $configuration = $this->configuration()
-            ->setString(SeablastConstant::SB_SESSION_SET_COOKIE_PARAMS_PATH, '/; Secure');
-        $model = new ApiLanguageModel($configuration, new Superglobals([], [], ['REMOTE_ADDR' => '127.0.0.1']));
-        $method = new \ReflectionMethod(ApiLanguageModel::class, 'setLanguageCookie');
-        $method->setAccessible(true);
-
-        $this->expectException(\InvalidArgumentException::class);
-        $method->invoke($model, 'cs');
-    }
-
-    private function assertLanguageResponse(stdClass $knowledge, string $language): void
-    {
-        $rest = $knowledge->rest;
-
-        self::assertSame(200, $knowledge->httpCode);
-        self::assertInstanceOf(stdClass::class, $rest);
-        self::assertSame($language, $rest->message);
-    }
-
-    private function setLanguageCookie(ApiLanguageModel $model, string $language): void
-    {
-        $method = new \ReflectionMethod(ApiLanguageModel::class, 'setLanguageCookie');
-        $method->setAccessible(true);
-
-        self::assertTrue($method->invoke($model, $language));
-    }
-
-    /**
-     * @return mixed
-     */
-    private static function getTracyProductionMode()
-    {
-        return (new \ReflectionProperty(Debugger::class, 'productionMode'))->getValue();
-    }
-
-    /**
-     * @param mixed $productionMode
-     */
-    private static function setTracyProductionMode($productionMode): void
-    {
-        (new \ReflectionProperty(Debugger::class, 'productionMode'))->setValue(null, $productionMode);
-    }
-
-    private function configuration(): SeablastConfiguration
-    {
-        return (new SeablastConfiguration())
-            ->setArrayString(I18nConstant::LANGUAGE_LIST, ['en', 'cs'])
-            ->setArrayString(SeablastConstant::DEBUG_IP_LIST, [])
-            ->setString(SeablastConstant::SB_SESSION_SET_COOKIE_PARAMS_PATH, '/');
     }
 }

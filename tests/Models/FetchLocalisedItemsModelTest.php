@@ -12,25 +12,10 @@ use stdClass;
 
 final class FetchLocalisedItemsModelTest extends TestCase
 {
-    public function testKnowledgeRejectsNonDecimalItemIdBeforeDatabaseAccess(): void
+    private function assertInvalidItemIdResponse(stdClass $knowledge): void
     {
-        $knowledge = $this->modelWithId('1e3')->knowledge();
-
-        $this->assertInvalidItemIdResponse($knowledge);
-    }
-
-    public function testKnowledgeRejectsNegativeItemIdBeforeDatabaseAccess(): void
-    {
-        $knowledge = $this->modelWithId('-1')->knowledge();
-
-        $this->assertInvalidItemIdResponse($knowledge);
-    }
-
-    public function testKnowledgeRejectsOverflowItemIdBeforeDatabaseAccess(): void
-    {
-        $knowledge = $this->modelWithId('2147483648')->knowledge();
-
-        $this->assertInvalidItemIdResponse($knowledge);
+        self::assertSame(400, $knowledge->httpCode);
+        self::assertSame('Invalid item id.', $knowledge->message);
     }
 
     /**
@@ -44,9 +29,24 @@ final class FetchLocalisedItemsModelTest extends TestCase
         );
     }
 
-    private function assertInvalidItemIdResponse(stdClass $knowledge): void
+    public function testKnowledgeRejectsNegativeItemIdBeforeDatabaseAccess(): void
     {
-        self::assertSame(400, $knowledge->httpCode);
-        self::assertSame('Invalid item id.', $knowledge->message);
+        $knowledge = $this->modelWithId('-1')->knowledge();
+
+        $this->assertInvalidItemIdResponse($knowledge);
+    }
+
+    public function testKnowledgeRejectsNonDecimalItemIdBeforeDatabaseAccess(): void
+    {
+        $knowledge = $this->modelWithId('1e3')->knowledge();
+
+        $this->assertInvalidItemIdResponse($knowledge);
+    }
+
+    public function testKnowledgeRejectsOverflowItemIdBeforeDatabaseAccess(): void
+    {
+        $knowledge = $this->modelWithId('2147483648')->knowledge();
+
+        $this->assertInvalidItemIdResponse($knowledge);
     }
 }

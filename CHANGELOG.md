@@ -19,6 +19,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### `Security` in case of vulnerabilities
 
+## [0.2.1] - TBD
+
+### Changed
+
+- Sort PHP properties and methods alphabetically using case-insensitive ordering.
+
 ## [0.2.0] - 2026-09-13
 
 fix!: add cookie-path validation, SameSite protection, explicit NOT NULL

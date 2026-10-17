@@ -57,6 +57,51 @@ class FetchLocalisedItemsModel implements SeablastModelInterface
     }
 
     /**
+     * Yield items one by one from the database.
+     *
+     * @param  string        $language   Configured language code
+     * @param  int           $itemTypeId Item type identifier
+     * @param  int|null      $itemId     Specific blog item_id, or null for all
+     * @return \Generator<int,array<string,mixed>>  Generator yielding each row as an associative array
+     * @throws DbmsException
+     */
+    private function fetchItems(string $language, int $itemTypeId, ?int $itemId = null): \Generator
+    {
+        $isList = is_null($itemId);
+        $select = $isList
+            ? 'item_id, language, parent_id, title, LEFT(content, 100) AS content, friendly_url, ' .
+                'item_type_id, active, created_at, updated_at'
+            : 'id, item_id, language, parent_id, title, content, friendly_url, item_type_id, active, ' .
+                'created_at, updated_at';
+        $where = $isList ? 'language = ?' : 'item_id = ? AND language = ?';
+        $order = $isList ? ' ORDER BY created_at DESC' : '';
+        $sql = "
+            SELECT {$select}
+            FROM `{$this->configuration->dbmsTablePrefix()}localised_items`
+            WHERE {$where} AND item_type_id = ? AND active = 1{$order};
+        ";
+        $stmt = $this->configuration->mysqli()->prepareStrict($sql);
+        if ($isList) {
+            $stmt->bind_param('si', $language, $itemTypeId);
+        } else {
+            $stmt->bind_param('isi', $itemId, $language, $itemTypeId);
+        }
+
+        $stmt->execute();
+        $result = $stmt->get_result();
+        if ($result === false) {
+            throw new DbmsException('Failed to get result set');
+        }
+
+        // Yield each row; if there are none, this generator simply ends without yielding.
+        while ($row = $result->fetch_assoc()) {
+            yield $row;
+        }
+
+        $stmt->close();
+    }
+
+    /**
      * Collection of items to be displayed.
      *
      * @return stdClass
@@ -119,50 +164,5 @@ class FetchLocalisedItemsModel implements SeablastModelInterface
         }
 
         return (int) $itemId;
-    }
-
-    /**
-     * Yield items one by one from the database.
-     *
-     * @param  string        $language   Configured language code
-     * @param  int           $itemTypeId Item type identifier
-     * @param  int|null      $itemId     Specific blog item_id, or null for all
-     * @return \Generator<int,array<string,mixed>>  Generator yielding each row as an associative array
-     * @throws DbmsException
-     */
-    private function fetchItems(string $language, int $itemTypeId, ?int $itemId = null): \Generator
-    {
-        $isList = is_null($itemId);
-        $select = $isList
-            ? 'item_id, language, parent_id, title, LEFT(content, 100) AS content, friendly_url, ' .
-                'item_type_id, active, created_at, updated_at'
-            : 'id, item_id, language, parent_id, title, content, friendly_url, item_type_id, active, ' .
-                'created_at, updated_at';
-        $where = $isList ? 'language = ?' : 'item_id = ? AND language = ?';
-        $order = $isList ? ' ORDER BY created_at DESC' : '';
-        $sql = "
-            SELECT {$select}
-            FROM `{$this->configuration->dbmsTablePrefix()}localised_items`
-            WHERE {$where} AND item_type_id = ? AND active = 1{$order};
-        ";
-        $stmt = $this->configuration->mysqli()->prepareStrict($sql);
-        if ($isList) {
-            $stmt->bind_param('si', $language, $itemTypeId);
-        } else {
-            $stmt->bind_param('isi', $itemId, $language, $itemTypeId);
-        }
-
-        $stmt->execute();
-        $result = $stmt->get_result();
-        if ($result === false) {
-            throw new DbmsException('Failed to get result set');
-        }
-
-        // Yield each row; if there are none, this generator simply ends without yielding.
-        while ($row = $result->fetch_assoc()) {
-            yield $row;
-        }
-
-        $stmt->close();
     }
 }

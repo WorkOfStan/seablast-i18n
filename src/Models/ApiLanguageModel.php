@@ -58,6 +58,59 @@ class ApiLanguageModel extends GenericRestApiJsonModel
     }
 
     /**
+     * Checks existence of a cookie `sbLanguage` and validates it; or returns the default language.
+     *
+     * @return string
+     * @throws \Exception
+     */
+    private function getLanguageValue(): string
+    {
+        $languages = $this->configuration->getArrayString(I18nConstant::LANGUAGE_LIST);
+
+        // Check if the cookie exists and is not empty
+        if (
+            !empty($_COOKIE[self::COOKIE_LANGUAGE]) && is_string($_COOKIE[self::COOKIE_LANGUAGE]) //
+            && in_array($_COOKIE[self::COOKIE_LANGUAGE], $languages, true)
+        ) {
+            return $this->useLanguage((string) $_COOKIE[self::COOKIE_LANGUAGE]);
+        }
+
+        // If cookie is not set or empty or unsupported, return the first value of the language list
+        $result = reset($languages);
+        if ($result === false) {
+            throw new \Exception('LANGUAGE_LIST is empty');
+        }
+        return $this->useLanguage($result);
+    }
+
+    private function isLanguageCookieSecure(): bool
+    {
+        // Tracy 2.x documents the property as bool, but uses null before Debugger::enable() resolves auto-detect mode.
+        $productionMode = (new \ReflectionProperty(Debugger::class, 'productionMode'))->getValue();
+        if ($productionMode === true) {
+            return true;
+        }
+        if ($productionMode === false) {
+            return false;
+        }
+
+        $remoteAddress = $this->superglobals->server['REMOTE_ADDR'] ?? '';
+        if (!is_string($remoteAddress)) {
+            return true;
+        }
+
+        $developmentIpList = ['::1', '127.0.0.1'];
+        if ($this->configuration->exists(SeablastConstant::DEBUG_IP_LIST)) {
+            $developmentIpList = array_merge(
+                $developmentIpList,
+                $this->configuration->getArrayString(SeablastConstant::DEBUG_IP_LIST)
+            );
+        }
+
+        return !in_array($remoteAddress, $developmentIpList, true);
+    }
+
+    /**
      * Return the knowledge calculated in this model.
      *
      * @return stdClass
@@ -86,36 +139,17 @@ class ApiLanguageModel extends GenericRestApiJsonModel
             ? self::response(200, 'Language set.') : self::response(500, 'Language failed');
     }
 
-    /**
-     * Checks existence of a cookie `sbLanguage` and validates it; or returns the default language.
-     *
-     * @return string
-     * @throws \Exception
-     */
-    private function getLanguageValue(): string
+    private function languageCookiePath(): string
     {
-        $languages = $this->configuration->getArrayString(I18nConstant::LANGUAGE_LIST);
-
-        // Check if the cookie exists and is not empty
-        if (
-            !empty($_COOKIE[self::COOKIE_LANGUAGE]) && is_string($_COOKIE[self::COOKIE_LANGUAGE]) //
-            && in_array($_COOKIE[self::COOKIE_LANGUAGE], $languages, true)
-        ) {
-            return $this->useLanguage((string) $_COOKIE[self::COOKIE_LANGUAGE]);
+        $path = $this->configuration->getString(SeablastConstant::SB_SESSION_SET_COOKIE_PARAMS_PATH);
+        if ($path === '') {
+            return '/';
+        }
+        if ($path[0] !== '/' || preg_match('/[[:cntrl:]\s;,]/', $path) !== 0) {
+            throw new \InvalidArgumentException('Unsafe language cookie path.');
         }
 
-        // If cookie is not set or empty or unsupported, return the first value of the language list
-        $result = reset($languages);
-        if ($result === false) {
-            throw new \Exception('LANGUAGE_LIST is empty');
-        }
-        return $this->useLanguage($result);
-    }
-
-    private function useLanguage(string $language): string
-    {
-        $this->configuration->setString(I18nConstant::LANGUAGE, $language);
-        return $language;
+        return $path;
     }
 
     /**
@@ -154,43 +188,9 @@ class ApiLanguageModel extends GenericRestApiJsonModel
         );
     }
 
-    private function languageCookiePath(): string
+    private function useLanguage(string $language): string
     {
-        $path = $this->configuration->getString(SeablastConstant::SB_SESSION_SET_COOKIE_PARAMS_PATH);
-        if ($path === '') {
-            return '/';
-        }
-        if ($path[0] !== '/' || preg_match('/[[:cntrl:]\s;,]/', $path) !== 0) {
-            throw new \InvalidArgumentException('Unsafe language cookie path.');
-        }
-
-        return $path;
-    }
-
-    private function isLanguageCookieSecure(): bool
-    {
-        // Tracy 2.x documents the property as bool, but uses null before Debugger::enable() resolves auto-detect mode.
-        $productionMode = (new \ReflectionProperty(Debugger::class, 'productionMode'))->getValue();
-        if ($productionMode === true) {
-            return true;
-        }
-        if ($productionMode === false) {
-            return false;
-        }
-
-        $remoteAddress = $this->superglobals->server['REMOTE_ADDR'] ?? '';
-        if (!is_string($remoteAddress)) {
-            return true;
-        }
-
-        $developmentIpList = ['::1', '127.0.0.1'];
-        if ($this->configuration->exists(SeablastConstant::DEBUG_IP_LIST)) {
-            $developmentIpList = array_merge(
-                $developmentIpList,
-                $this->configuration->getArrayString(SeablastConstant::DEBUG_IP_LIST)
-            );
-        }
-
-        return !in_array($remoteAddress, $developmentIpList, true);
+        $this->configuration->setString(I18nConstant::LANGUAGE, $language);
+        return $language;
     }
 }
