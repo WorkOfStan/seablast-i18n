@@ -14,6 +14,77 @@ use Phinx\Migration\IrreversibleMigrationException;
  */
 final class EnforceI18nRequiredColumnsNotNull extends AbstractMigration
 {
+    /** @return array<string, array<string, ColumnDefinition>> */
+    private function columnDefinitions(): array
+    {
+        $created = ['type' => 'timestamp', 'options' => ['null' => false, 'default' => 'CURRENT_TIMESTAMP']];
+        $updated = [
+            'type' => 'timestamp',
+            'options' => ['null' => false, 'default' => 'CURRENT_TIMESTAMP', 'update' => 'CURRENT_TIMESTAMP'],
+        ];
+        return [
+            'translations' => [
+                'language' => ['type' => 'string', 'options' => ['limit' => 5, 'null' => false]],
+                'translation_key' => ['type' => 'string', 'options' => ['limit' => 255, 'null' => false]],
+                'translation_value' => ['type' => 'text', 'options' => ['null' => false]],
+            ],
+            'localised_item_types' => ['created_at' => $created, 'updated_at' => $updated],
+            'localised_items' => [
+                'item_id' => ['type' => 'integer', 'options' => ['null' => false]],
+                'language' => ['type' => 'string', 'options' => ['limit' => 5, 'null' => false]],
+                'title' => ['type' => 'string', 'options' => ['limit' => 255, 'null' => false]],
+                'item_type_id' => ['type' => 'integer', 'options' => ['signed' => false, 'null' => false]],
+                'active' => [
+                    'type' => 'boolean',
+                    'options' => ['default' => 1, 'comment' => '0=inactive, 1=active', 'null' => false],
+                ],
+                'created_at' => $created,
+                'updated_at' => $updated,
+            ],
+        ];
+    }
+
+    public function down(): void
+    {
+        throw new IrreversibleMigrationException(
+            'Prior column nullability depends on the Phinx version and cannot be safely restored.'
+        );
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function getAdapterOptions(): array
+    {
+        return $this->readAdapterOptions($this->getAdapter());
+    }
+
+    private function quotedTableName(string $name): string
+    {
+        $options = $this->getAdapterOptions();
+        $prefix = $options['table_prefix'] ?? '';
+        $suffix = $options['table_suffix'] ?? '';
+        if (!is_string($prefix) || !is_string($suffix)) {
+            throw new \RuntimeException('Table prefix and suffix must be strings.');
+        }
+        return '`' . str_replace('`', '``', $prefix . $name . $suffix) . '`';
+    }
+
+    /**
+     * Keep getAdapterOptions calling readAdapterOptions to maintain compatibility PHP >= 8.1
+     * and below where $this->getAdapter() returns Phinx\Db\Adapter\AdapterInterface|null
+     *
+     * @param mixed $adapter
+     * @return array<string, mixed>
+     */
+    private function readAdapterOptions($adapter): array
+    {
+        if (!$adapter instanceof AdapterInterface) {
+            throw new \RuntimeException('Migration adapter is not initialized.');
+        }
+        return $adapter->getOptions();
+    }
+
     public function up(): void
     {
         $definitions = $this->columnDefinitions();
@@ -61,76 +132,5 @@ final class EnforceI18nRequiredColumnsNotNull extends AbstractMigration
                 }
             }
         }
-    }
-
-    public function down(): void
-    {
-        throw new IrreversibleMigrationException(
-            'Prior column nullability depends on the Phinx version and cannot be safely restored.'
-        );
-    }
-
-    /** @return array<string, array<string, ColumnDefinition>> */
-    private function columnDefinitions(): array
-    {
-        $created = ['type' => 'timestamp', 'options' => ['null' => false, 'default' => 'CURRENT_TIMESTAMP']];
-        $updated = [
-            'type' => 'timestamp',
-            'options' => ['null' => false, 'default' => 'CURRENT_TIMESTAMP', 'update' => 'CURRENT_TIMESTAMP'],
-        ];
-        return [
-            'translations' => [
-                'language' => ['type' => 'string', 'options' => ['limit' => 5, 'null' => false]],
-                'translation_key' => ['type' => 'string', 'options' => ['limit' => 255, 'null' => false]],
-                'translation_value' => ['type' => 'text', 'options' => ['null' => false]],
-            ],
-            'localised_item_types' => ['created_at' => $created, 'updated_at' => $updated],
-            'localised_items' => [
-                'item_id' => ['type' => 'integer', 'options' => ['null' => false]],
-                'language' => ['type' => 'string', 'options' => ['limit' => 5, 'null' => false]],
-                'title' => ['type' => 'string', 'options' => ['limit' => 255, 'null' => false]],
-                'item_type_id' => ['type' => 'integer', 'options' => ['signed' => false, 'null' => false]],
-                'active' => [
-                    'type' => 'boolean',
-                    'options' => ['default' => 1, 'comment' => '0=inactive, 1=active', 'null' => false],
-                ],
-                'created_at' => $created,
-                'updated_at' => $updated,
-            ],
-        ];
-    }
-
-    private function quotedTableName(string $name): string
-    {
-        $options = $this->getAdapterOptions();
-        $prefix = $options['table_prefix'] ?? '';
-        $suffix = $options['table_suffix'] ?? '';
-        if (!is_string($prefix) || !is_string($suffix)) {
-            throw new \RuntimeException('Table prefix and suffix must be strings.');
-        }
-        return '`' . str_replace('`', '``', $prefix . $name . $suffix) . '`';
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function getAdapterOptions(): array
-    {
-        return $this->readAdapterOptions($this->getAdapter());
-    }
-
-    /**
-     * Keep getAdapterOptions calling readAdapterOptions to maintain compatibility PHP >= 8.1
-     * and below where $this->getAdapter() returns Phinx\Db\Adapter\AdapterInterface|null
-     *
-     * @param mixed $adapter
-     * @return array<string, mixed>
-     */
-    private function readAdapterOptions($adapter): array
-    {
-        if (!$adapter instanceof AdapterInterface) {
-            throw new \RuntimeException('Migration adapter is not initialized.');
-        }
-        return $adapter->getOptions();
     }
 }

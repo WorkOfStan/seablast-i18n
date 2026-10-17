@@ -13,10 +13,60 @@ use Webmozart\Assert\Assert;
 
 final class I18nMigrationsTest extends TestCase
 {
-    /** @var MysqlAdapter */
-    private $mysql;
     /** @var TablePrefixAdapter */
     private $adapter;
+    /** @var MysqlAdapter */
+    private $mysql;
+
+    private function assertRejectedSql(string $sql): void
+    {
+        try {
+            $this->mysql->execute($sql);
+            $this->fail('Expected a database constraint violation.');
+        } catch (\PDOException $error) {
+            $this->assertSame('23000', (string) $error->getCode());
+        }
+    }
+
+    /**
+     * @param mixed $rows
+     * @return array<int, array<string, mixed>>
+     */
+    private function normalizeRows($rows): array
+    {
+        Assert::isArray($rows);
+        $result = [];
+        foreach ($rows as $row) {
+            $result[] = $this->stringKeyedArray($row);
+        }
+        return $result;
+    }
+
+    /** @return array<string, array<int, array<string, mixed>>> */
+    private function schema(): array
+    {
+        $schema = [];
+        foreach (['translations', 'localised_item_types', 'localised_items'] as $table) {
+            $rows = $this->mysql->fetchAll('SHOW FULL COLUMNS FROM `probe_' . $table . '_test`');
+            $schema[$table] = $this->normalizeRows($rows);
+        }
+        return $schema;
+    }
+
+    /**
+     * @param mixed $value
+     * @return array<string, mixed>
+     */
+    private function stringKeyedArray($value): array
+    {
+        Assert::isArray($value);
+        $result = [];
+        foreach ($value as $key => $item) {
+            Assert::string($key);
+            $result[$key] = $item;
+        }
+        return $result;
+    }
 
     public function testMigrationsAgainstBothHistoricalNullDefaults(): void
     {
@@ -163,55 +213,5 @@ final class I18nMigrationsTest extends TestCase
             $this->assertStringContainsString('Phinx version', $error->getMessage());
         }
         $this->assertSame($beforeDown, $this->schema());
-    }
-
-    /** @return array<string, array<int, array<string, mixed>>> */
-    private function schema(): array
-    {
-        $schema = [];
-        foreach (['translations', 'localised_item_types', 'localised_items'] as $table) {
-            $rows = $this->mysql->fetchAll('SHOW FULL COLUMNS FROM `probe_' . $table . '_test`');
-            $schema[$table] = $this->normalizeRows($rows);
-        }
-        return $schema;
-    }
-
-    /**
-     * @param mixed $rows
-     * @return array<int, array<string, mixed>>
-     */
-    private function normalizeRows($rows): array
-    {
-        Assert::isArray($rows);
-        $result = [];
-        foreach ($rows as $row) {
-            $result[] = $this->stringKeyedArray($row);
-        }
-        return $result;
-    }
-
-    /**
-     * @param mixed $value
-     * @return array<string, mixed>
-     */
-    private function stringKeyedArray($value): array
-    {
-        Assert::isArray($value);
-        $result = [];
-        foreach ($value as $key => $item) {
-            Assert::string($key);
-            $result[$key] = $item;
-        }
-        return $result;
-    }
-
-    private function assertRejectedSql(string $sql): void
-    {
-        try {
-            $this->mysql->execute($sql);
-            $this->fail('Expected a database constraint violation.');
-        } catch (\PDOException $error) {
-            $this->assertSame('23000', (string) $error->getCode());
-        }
     }
 }

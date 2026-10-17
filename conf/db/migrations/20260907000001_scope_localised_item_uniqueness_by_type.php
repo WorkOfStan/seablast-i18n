@@ -10,14 +10,6 @@ final class ScopeLocalisedItemUniquenessByType extends AbstractMigration
 {
     private const INDEX_NAME = 'idx_localised_item_language_type_unique';
 
-    public function up(): void
-    {
-        $this->table('localised_items')
-            ->removeIndex(['item_id', 'language'])
-            ->addIndex(['item_id', 'language', 'item_type_id'], ['unique' => true, 'name' => self::INDEX_NAME])
-            ->update();
-    }
-
     public function down(): void
     {
         $table = $this->table('localised_items');
@@ -41,6 +33,14 @@ final class ScopeLocalisedItemUniquenessByType extends AbstractMigration
             ->update();
     }
 
+    /**
+     * @return array<string, mixed>
+     */
+    private function getAdapterOptions(): array
+    {
+        return $this->readAdapterOptions($this->getAdapter());
+    }
+
     private function quotedTableName(): string
     {
         $options = $this->getAdapterOptions();
@@ -50,14 +50,6 @@ final class ScopeLocalisedItemUniquenessByType extends AbstractMigration
             throw new \RuntimeException('Table prefix and suffix must be strings.');
         }
         return '`' . str_replace('`', '``', $prefix . 'localised_items' . $suffix) . '`';
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function getAdapterOptions(): array
-    {
-        return $this->readAdapterOptions($this->getAdapter());
     }
 
     /**
@@ -73,5 +65,13 @@ final class ScopeLocalisedItemUniquenessByType extends AbstractMigration
             throw new \RuntimeException('Migration adapter is not initialized.');
         }
         return $adapter->getOptions();
+    }
+
+    public function up(): void
+    {
+        $this->table('localised_items')
+            ->removeIndex(['item_id', 'language'])
+            ->addIndex(['item_id', 'language', 'item_type_id'], ['unique' => true, 'name' => self::INDEX_NAME])
+            ->update();
     }
 }

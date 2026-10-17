@@ -19,6 +19,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### `Security` in case of vulnerabilities
 
+## [0.2.1] - TBD
+
+### Changed
+
+- Sort PHP properties and methods alphabetically using case-insensitive ordering.
+
+### Security
+
+- Temporarily allow `GHSA-vjqc-q4mp-2rvf` / `CVE-2026-79752` for `cakephp/database` to retain PHP 7.3 compatibility.
+  - The vulnerability affects several `FunctionsBuilder` methods when user-controlled values are passed to SQL function parameters.
+  - This exception should be removed once CakePHP provides a patched release compatible with PHP 7.3, or when PHP is upgraded to a version supported by the currently patched CakePHP releases.
+
 ## [0.2.0] - 2026-09-13
 
 fix!: add cookie-path validation, SameSite protection, explicit NOT NULL
