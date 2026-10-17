@@ -21,6 +21,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.2.1] - TBD
 
+### Added
+
+- add inheritable configuration of administration of Seablast I18n tables
+
 ### Changed
 
 - Sort PHP properties and methods alphabetically using case-insensitive ordering.

@@ -25,14 +25,23 @@ return static function (SeablastConfiguration $SBConfig): void {
         // Seablast::SeablastView uses this class for Latte filter translate
         ->setString(SeablastConstant::TRANSLATE_CLASS, '\Seablast\I18n\SeablastTranslate') // since Seablast v0.2.7
         // Administration of Seablast I18n tables
-        ->setArrayString(
+        // this field might have been pre-populated
+        ->addArrayString(
+            SeablastConstant::ADMIN_TABLE_VIEW . SeablastConstant::USER_ROLE_EDITOR,
+            [
+                'translations', 'localised_items', 'localised_item_types',
+            ]
+        )
+        // this field might have been pre-populated
+        ->addArrayString(
             // ON DELETE NO_ACTION prevents risky deletion of children
             SeablastConstant::ADMIN_TABLE_DELETE_ROW . SeablastConstant::USER_ROLE_EDITOR,
             [
                 'localised_items', // note: localised_item_types has ON DELETE CASCADE
             ]
         )
-        ->setArrayString(
+        // this field might have been pre-populated
+        ->addArrayString(
             SeablastConstant::ADMIN_TABLE_INSERT_ROW . SeablastConstant::USER_ROLE_EDITOR,
             [
                 'localised_items',
