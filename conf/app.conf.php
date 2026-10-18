@@ -26,7 +26,7 @@ return static function (SeablastConfiguration $SBConfig): void {
         ->setString(SeablastConstant::TRANSLATE_CLASS, '\Seablast\I18n\SeablastTranslate') // since Seablast v0.2.7
         // Administration of Seablast I18n tables
         // this field might have been pre-populated
-        ->addArrayString(
+        ->addArrayString( // addArrayString() is defined since Seablast v0.2.19
             SeablastConstant::ADMIN_TABLE_VIEW . SeablastConstant::USER_ROLE_EDITOR,
             [
                 'translations', 'localised_items', 'localised_item_types',
