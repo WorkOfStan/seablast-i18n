@@ -21,9 +21,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.2.1] - TBD
 
+feat: add inheritable configuration of administration of I18n tables
+
+### Added
+
+- add inheritable configuration of administration of Seablast I18n tables
+
 ### Changed
 
 - Sort PHP properties and methods alphabetically using case-insensitive ordering.
+
+### Fixed
+
+- Fall back to `setArrayString()` for administration configuration when `addArrayString()` is unavailable.
 
 ### Security
 
