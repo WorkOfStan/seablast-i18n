@@ -5,3 +5,9 @@ parameters:
           - ../vendor
     scanDirectories:
       - ../src
+    ignoreErrors:
+        # Keep the compatibility check even when only PHPStan 2 reports it as always true.
+        -
+            identifier: function.alreadyNarrowedType
+            path: app.conf.php
+            reportUnmatched: false
