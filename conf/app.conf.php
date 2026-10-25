@@ -25,6 +25,7 @@ return static function (SeablastConfiguration $SBConfig): void {
         // Seablast::SeablastView uses this class for Latte filter translate
         ->setString(SeablastConstant::TRANSLATE_CLASS, '\Seablast\I18n\SeablastTranslate') // since Seablast v0.2.7
     ;
+    // @phpstan-ignore function.alreadyNarrowedType (Support Seablast versions before v0.2.19.)
     $arrayStringMethod = method_exists($SBConfig, 'addArrayString') ? 'addArrayString' : 'setArrayString';
     $SBConfig
         // Administration of Seablast I18n tables
