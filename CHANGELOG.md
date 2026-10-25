@@ -29,6 +29,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Sort PHP properties and methods alphabetically using case-insensitive ordering.
 
+### Fixed
+
+- Fall back to `setArrayString()` for administration configuration when `addArrayString()` is unavailable.
+
 ### Security
 
 - Temporarily allow `GHSA-vjqc-q4mp-2rvf` / `CVE-2026-79752` for `cakephp/database` to retain PHP 7.3 compatibility.

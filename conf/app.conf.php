@@ -24,16 +24,19 @@ return static function (SeablastConfiguration $SBConfig): void {
         )
         // Seablast::SeablastView uses this class for Latte filter translate
         ->setString(SeablastConstant::TRANSLATE_CLASS, '\Seablast\I18n\SeablastTranslate') // since Seablast v0.2.7
+    ;
+    $arrayStringMethod = method_exists($SBConfig, 'addArrayString') ? 'addArrayString' : 'setArrayString';
+    $SBConfig
         // Administration of Seablast I18n tables
         // this field might have been pre-populated
-        ->addArrayString( // addArrayString() is defined since Seablast v0.2.19
+        ->{$arrayStringMethod}( // addArrayString() is defined since Seablast v0.2.19
             SeablastConstant::ADMIN_TABLE_VIEW . SeablastConstant::USER_ROLE_EDITOR,
             [
                 'translations', 'localised_items', 'localised_item_types',
             ]
         )
         // this field might have been pre-populated
-        ->addArrayString(
+        ->{$arrayStringMethod}(
             // ON DELETE NO_ACTION prevents risky deletion of children
             SeablastConstant::ADMIN_TABLE_DELETE_ROW . SeablastConstant::USER_ROLE_EDITOR,
             [
@@ -41,12 +44,14 @@ return static function (SeablastConfiguration $SBConfig): void {
             ]
         )
         // this field might have been pre-populated
-        ->addArrayString(
+        ->{$arrayStringMethod}(
             SeablastConstant::ADMIN_TABLE_INSERT_ROW . SeablastConstant::USER_ROLE_EDITOR,
             [
                 'localised_items',
             ]
         )
+    ;
+    $SBConfig
         ->setArrayArrayString(
             SeablastConstant::ADMIN_TABLE_VIEW . SeablastConstant::USER_ROLE_EDITOR,
             'translations',
