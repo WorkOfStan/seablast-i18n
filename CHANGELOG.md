@@ -30,6 +30,7 @@ feat: add inheritable configuration of administration of I18n tables
 ### Changed
 
 - Sort PHP properties and methods alphabetically using case-insensitive ordering.
+- Obtain CSRF tokens on language-selection interaction when Seablast serves a session-free page, preserve the jQuery Promise API, and mark language lookup as potentially stateless.
 
 ### Fixed
 

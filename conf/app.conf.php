@@ -20,6 +20,7 @@ return static function (SeablastConfiguration $SBConfig): void {
             '/api/language',
             [
                 'model' => '\Seablast\I18n\Models\ApiLanguageModel',
+                'session' => 'auto', // Reading the language needs no PHP session on supporting Seablast versions.
             ]
         )
         // Seablast::SeablastView uses this class for Latte filter translate

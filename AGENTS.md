@@ -20,6 +20,19 @@
 - Follow-up migrations require localised item languages and other required fields to be NOT NULL; only `parent_id`, `content` and `friendly_url` remain nullable. Repair existing NULL values manually before migration.
 - Localised item uniqueness is `(item_id, language, item_type_id)`. Nullability rollback is unsupported; index rollback refuses duplicate `(item_id, language)` pairs before changing the index. Pause application writes during migrations.
 
+## Conditional Session Integration
+
+The `/api/language` mapping declares `session => auto`; older Seablast versions ignore
+this key. On supporting core versions, anonymous language reads do not need a PHP
+session. The selector reuses a nonempty token or calls the core `getCsrfToken()` helper
+only for language changes, then sends the existing protected POST. Preserve its jQuery
+Promise return value, feature flag gating, and failure propagation. A missing helper
+with a missing token must fail instead of issuing an unprotected language change.
+Deploy core and selector updates together; bump the consuming application's asset version.
+
+Run `node tests/language-selector.test.cjs` for token-free reads, lazy initialization,
+existing-token compatibility, disabled UI, and failure propagation.
+
 ## Security Invariants
 
 - Keep the `sbLanguage` cookie `HttpOnly` with `SameSite=Lax`, validate its configured path before creating the header, and preserve both the PHP 7.3+ options-array call and the guarded PHP 7.2 fallback.

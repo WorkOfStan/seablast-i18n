@@ -55,6 +55,17 @@ Instead of using the language selector, you can switch the language programmatic
 window.languageSelector(string language); // language is one of the configured language codes, for example: en, cs
 ```
 
+With Seablast's conditional session support (0.2.20+), the language lookup route
+uses `session => auto`. The selector accepts a null initial `csrfToken`: it calls
+`getCsrfToken(API_BASE, csrfToken)` only when a language is selected, then submits
+the existing CSRF-protected POST. Reading the language does not fetch a token.
+The returned object remains a jQuery Promise with `.done()`, `.fail()`, and `.then()`.
+An existing token is reused, so older Seablast versions retain their current behavior.
+Deploy the updated core helper and selector together and bump the application's asset
+version. Custom selector overrides must adopt the same on-interaction token handling.
+The `sbLanguage` cookie continues to select the language; it is independent of PHP
+session storage. Core may conservatively start a session when that cookie is present.
+
 The caller is responsible for reloading or re-rendering the page so translated strings update:
 
 ```javascript

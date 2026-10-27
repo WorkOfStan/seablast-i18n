@@ -7,7 +7,7 @@
     <script>window.sbI18nLanguageList = {$configuration->getArrayString('I18nSB:LANGUAGE_LIST')};</script>
     <script n:syntax=off type="module">
 (async () => {
-  const {ErrorLogger} = await import(`${API_BASE}/vendor/seablast/seablast/assets/scripts/seablast.js`);
+  const {ErrorLogger, getCsrfToken} = await import(`${API_BASE}/vendor/seablast/seablast/assets/scripts/seablast.js`);
 
   $(() => {
     /** @type import('./vendor/seablast/seablast/assets/scripts/Environment.js').Environment */
@@ -35,23 +35,43 @@
       }
 
       const url = `${env.API_BASE_DIR}language`;
-      const ajaxOptions =
-              language === undefined
-              ? {url, dataType: "json"} // original behavior - GET
-      : {
-        url,
-        method: "POST",
-        contentType: "application/json",
-        data: JSON.stringify({
-          language,
-          csrfToken: env.csrfToken,
-        }),
+      const send = () => {
+        const ajaxOptions =
+                language === undefined
+                ? {url, dataType: "json"} // original behavior - GET
+        : {
+          url,
+          method: "POST",
+          contentType: "application/json",
+          data: JSON.stringify({
+            language,
+            csrfToken: env.csrfToken,
+          }),
+        };
+
+        return $.ajax(ajaxOptions)
+                .fail(() => {
+                  errorLogger.log("/api/language error", "error");
+                });
       };
 
-      return $.ajax(ajaxOptions)
-              .fail(() => {
-                errorLogger.log("/api/language error", "error");
-              });
+      // Reading the language never bootstraps a token or a PHP session.
+      if (language === undefined || (typeof env.csrfToken === "string" && env.csrfToken !== "")) {
+        return send();
+      }
+      // Preserve the public jQuery Promise contract, including .done() and .fail().
+      const pending = $.Deferred();
+      if (typeof getCsrfToken !== "function") {
+        return pending.reject(new Error("Conditional sessions require Seablast's getCsrfToken helper")).promise();
+      }
+      getCsrfToken(env.API_BASE, env.csrfToken).then((token) => {
+        env.csrfToken = token;
+        errorLogger.csrfToken = token;
+        send()
+                .done((...args) => pending.resolve(...args))
+                .fail((...args) => pending.reject(...args));
+      }, (error) => { pending.reject(error); });
+      return pending.promise();
     };
 
     const quickList = window.sbI18nLanguageList;
